@@ -4,6 +4,7 @@ import Sprite, { Sprites } from './sprites.js';
 const TILESET_FILE_NAME = './assets/tileset.png';
 const MARIO_SPRITESHEET_FILE_NAME = './assets/sprites_mario.png';
 const LUIGI_SPRITESHEET_FILE_NAME = './assets/sprites_luigi.png';
+const BG_FILE_NAME = './assets/bg.png';
 const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
 const BLACK_BAND_HEIGHT = Math.floor(SCREEN_HEIGHT * 0.2);
@@ -21,14 +22,20 @@ canvas.height = SCREEN_HEIGHT;
 const context = canvas.getContext("2d");
 context.strokeStyle = "#fff";
 
+// tileset
 const tileset = new Image();
 tileset.src = TILESET_FILE_NAME;
 tileset.onload = loadTiles;
 const tiles = [];
+// sprite sheet
 const spriteSheet = new Image();
 spriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
 spriteSheet.onload = loadSprites;
 const sprites = [];
+// background
+const background = new Image();
+background.src = BG_FILE_NAME;
+// cloud generation
 const clouds = initClouds();
 
 function loadTiles(ev) {
@@ -71,31 +78,31 @@ function initClouds() {
     }));
 }
 
-const ball = { x: 100, y: 75 }
-
 function renderFrame() {
   context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
   drawBackground();
   drawGround();
   drawClouds();
   drawCharacter();
-  context.beginPath();
-  context.arc(ball.x, ball.y + BLACK_BAND_HEIGHT, 50, 0, 2 * Math.PI);
-  context.stroke();
-  ball.x += Math.random() * 20 - 10;
-  ball.y += Math.random() * 20 - 10;
 
   requestAnimationFrame(renderFrame);
 }
 
 function drawBackground() {
+  // sky
   context.fillStyle = "#6b8cff";
   context.fillRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
+  // background
+  const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - background.height;
+  const numBGRepeat = Math.floor(playgroundWidth / background.width) + 1;
+  for (let i = 0; i < numBGRepeat; i++) {
+    context.drawImage(background, i * background.width, y);
+  }
 }
 
 function drawGround() {
   const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2);
-  const numTiles = Math.floor(playgroundWidth / TILE_SIZE);
+  const numTiles = Math.floor(playgroundWidth / TILE_SIZE) + 1;
   for (let i = 0; i < numTiles; i++) {
     tiles[Tiles.GRASS_TILE].draw(context, i * TILE_SIZE, y);
     tiles[Tiles.GROUND_TILE].draw(context, i * TILE_SIZE, y + TILE_SIZE);
