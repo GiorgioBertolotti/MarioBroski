@@ -10,3 +10,11 @@ export default class Tile {
     context.drawImage(this.image, this.x, this.y, this.size, this.size, x, y, this.size, this.size);
   }
 }
+
+export const Tiles = {
+  GRASS_TILE: 29,
+  GROUND_TILE: 30,
+  CLOUD_START_TILE: 231,
+  CLOUD_MIDDLE_TILE: 232,
+  CLOUD_END_TILE: 233
+}

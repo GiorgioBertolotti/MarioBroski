@@ -1,9 +1,11 @@
-import Tile from './tiles.js';
+import Tile, { Tiles } from './tiles.js';
 
 const TILESET_FILE_NAME = './assets/tileset.png';
 const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
 const BLACK_BAND_HEIGHT = SCREEN_HEIGHT * 0.2;
+const TILES_PER_COLUMN = 26;
+const TILE_SIZE = 16;
 const playgroundWidth = SCREEN_WIDTH;
 const playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
 
@@ -25,16 +27,16 @@ function loadTiles(img, ev) {
     for (let y = 0; y < h - 1; y++) {
       const tile = new Tile(tileset, x + 1, y + 1)
       tiles.push(tile);
-      y += 16;
+      y += TILE_SIZE;
     }
-    x += 16;
+    x += TILE_SIZE;
   }
   renderFrame();
 }
 
 const ball = { x: 100, y: 75 }
-const maxClouds = 4;
-const cloudsNumber = Math.floor(Math.random() * maxClouds) + 1;
+const maxClouds = 3;
+const cloudsNumber = Math.floor(Math.random() * maxClouds) + 2;
 const chunkWidth = (SCREEN_WIDTH / cloudsNumber);
 const clouds = new Array(cloudsNumber).fill(0)
   .map((_, index) => ({
@@ -63,22 +65,22 @@ function drawBackground() {
 }
 
 function drawGround() {
-  const y = BLACK_BAND_HEIGHT + playgroundHeight - 32;
-  const numTiles = Math.floor(SCREEN_WIDTH / 16);
+  const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2);
+  const numTiles = Math.floor(SCREEN_WIDTH / TILE_SIZE);
   for (let i = 0; i < numTiles; i++) {
-    tiles[29].draw(context, i * 16, y);
-    tiles[30].draw(context, i * 16, y + 16);
+    tiles[Tiles.GRASS_TILE].draw(context, i * TILE_SIZE, y);
+    tiles[Tiles.GROUND_TILE].draw(context, i * TILE_SIZE, y + TILE_SIZE);
   }
 }
 
 function drawClouds() {
   clouds.forEach((cloudPos) => {
-    tiles[231 + (cloudPos.type * 26)].draw(context, cloudPos.x, cloudPos.y);
+    tiles[Tiles.CLOUD_START_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x, cloudPos.y);
     if (cloudPos.size > 2)
-      tiles[232 + (cloudPos.type * 26)].draw(context, cloudPos.x + 16, cloudPos.y);
+      tiles[Tiles.CLOUD_MIDDLE_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x + TILE_SIZE, cloudPos.y);
     if (cloudPos.size > 2)
-      tiles[233 + (cloudPos.type * 26)].draw(context, cloudPos.x + 32, cloudPos.y);
+      tiles[Tiles.CLOUD_END_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x + (TILE_SIZE * 2), cloudPos.y);
     else
-      tiles[233 + (cloudPos.type * 26)].draw(context, cloudPos.x + 16, cloudPos.y);
+      tiles[Tiles.CLOUD_END_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x + TILE_SIZE, cloudPos.y);
   })
 }
