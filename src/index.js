@@ -63,10 +63,11 @@ function drawBackground() {
 }
 
 function drawGround() {
-  const y = BLACK_BAND_HEIGHT + playgroundHeight - 16;
+  const y = BLACK_BAND_HEIGHT + playgroundHeight - 32;
   const numTiles = Math.floor(SCREEN_WIDTH / 16);
   for (let i = 0; i < numTiles; i++) {
     tiles[29].draw(context, i * 16, y);
+    tiles[30].draw(context, i * 16, y + 16);
   }
 }
 
