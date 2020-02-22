@@ -42,18 +42,38 @@ export default class Character {
     }
     // new sprite recalculation
     let sprite = this.prevSprite;
+    const now = new Date().getTime();
     if (prevX < this.x) {
-      if (sprite === Sprites.WALK_R_1)
-        sprite = Sprites.WALK_R_2;
-      else
-        sprite = Sprites.WALK_R_1;
+      // walk right
+      if (!this.lastWalkRight)
+        this.lastWalkRight = now;
+      if (this.lastWalkRight && now - this.lastWalkRight > 250) {
+        if (sprite === Sprites.WALK_R_1)
+          sprite = Sprites.WALK_R_2;
+        else
+          sprite = Sprites.WALK_R_1;
+        this.lastWalkRight = now;
+      } else {
+        if (sprite !== Sprites.WALK_R_1 && sprite !== Sprites.WALK_R_2)
+          sprite = Sprites.WALK_R_1;
+      }
     } else {
       if (prevX > this.x) {
-        if (sprite === Sprites.WALK_L_1)
-          sprite = Sprites.WALK_L_2;
-        else
-          sprite = Sprites.WALK_L_1;
+        // walk left
+        if (!this.lastWalkLeft)
+          this.lastWalkLeft = now;
+        if (this.lastWalkLeft && now - this.lastWalkLeft > 250) {
+          if (sprite === Sprites.WALK_L_1)
+            sprite = Sprites.WALK_L_2;
+          else
+            sprite = Sprites.WALK_L_1;
+          this.lastWalkLeft = now;
+        } else {
+          if (sprite !== Sprites.WALK_L_1 && sprite !== Sprites.WALK_L_2)
+            sprite = Sprites.WALK_L_1;
+        }
       } else {
+        // idle
         if (sprite === Sprites.WALK_R_1 || sprite === Sprites.WALK_R_2 || sprite === Sprites.IDLE_R) {
           sprite = Sprites.IDLE_R;
         } else
@@ -68,12 +88,16 @@ export default class Character {
   }
 
   right() {
-    if (this.acceleration < 0.6)
+    if (this.acceleration < 0)
+      this.acceleration = 0.2;
+    else if (this.acceleration < 0.6)
       this.acceleration += 0.2;
   }
 
   left() {
-    if (this.acceleration > -0.6)
+    if (this.acceleration > 0)
+      this.acceleration = -0.2;
+    else if (this.acceleration > -0.6)
       this.acceleration -= 0.2;
   }
 
@@ -83,9 +107,9 @@ export default class Character {
         this.acceleration = 0;
       } else {
         if (this.acceleration > 0) {
-          this.acceleration -= 0.1;
+          this.acceleration -= 0.2;
         } else {
-          this.acceleration += 0.1;
+          this.acceleration += 0.2;
         }
       }
     }
