@@ -1,11 +1,13 @@
 import Tile, { Tiles } from './tiles.js';
-import Sprite, { Sprites } from './sprites.js';
+import Sprite from './sprites.js';
+import Character from './character.js';
 
+// consts
 const TILESET_FILE_NAME = './assets/tileset.png';
 const MARIO_SPRITESHEET_FILE_NAME = './assets/sprites_mario.png';
 const LUIGI_SPRITESHEET_FILE_NAME = './assets/sprites_luigi.png';
 const BG_FILE_NAME = './assets/bg.png';
-const SCREEN_WIDTH = window.innerWidth;
+export const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
 const BLACK_BAND_HEIGHT = Math.floor(SCREEN_HEIGHT * 0.2);
 const TILES_PER_COLUMN = 26;
@@ -16,6 +18,7 @@ const SPRITE_WIDTH = 16;
 const playgroundWidth = SCREEN_WIDTH;
 const playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
 
+// canvas
 const canvas = document.getElementById("canvas");
 canvas.width = SCREEN_WIDTH;
 canvas.height = SCREEN_HEIGHT;
@@ -28,10 +31,16 @@ tileset.src = TILESET_FILE_NAME;
 tileset.onload = loadTiles;
 const tiles = [];
 // sprite sheet
-const spriteSheet = new Image();
-spriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
-spriteSheet.onload = loadSprites;
-const sprites = [];
+const marioSpriteSheet = new Image();
+marioSpriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
+marioSpriteSheet.onload = () => loadSprites("mario");
+const marioSprites = [];
+const luigiSpriteSheet = new Image();
+luigiSpriteSheet.src = LUIGI_SPRITESHEET_FILE_NAME;
+luigiSpriteSheet.onload = () => loadSprites("luigi");
+const luigiSprites = [];
+// character
+const character = new Character(marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
 // background
 const background = new Image();
 background.src = BG_FILE_NAME;
@@ -52,13 +61,17 @@ function loadTiles(ev) {
   renderFrame();
 }
 
-function loadSprites(ev) {
-  const w = spriteSheet.width;
-  const h = spriteSheet.height;
+function loadSprites(character) {
+  const isMario = character === "mario";
+  const w = isMario ? marioSpriteSheet.width : luigiSpriteSheet.width;
+  const h = isMario ? marioSpriteSheet.height : luigiSpriteSheet.width;
   for (let x = 0; x < w - 1; x++) {
     for (let y = 0; y < h - 1; y++) {
-      const sprite = new Sprite(spriteSheet, x + 1, y + 1)
-      sprites.push(sprite);
+      const sprite = new Sprite(isMario ? marioSpriteSheet : luigiSpriteSheet, x + 1, y + 1)
+      if (isMario)
+        marioSprites.push(sprite);
+      else
+        luigiSprites.push(sprite);
       y += SPRITE_HEIGHT;
     }
     x += SPRITE_WIDTH;
@@ -83,6 +96,8 @@ function renderFrame() {
   drawBackground();
   drawGround();
   drawClouds();
+  if (!isKeyDown)
+    character.slow();
   drawCharacter();
 
   requestAnimationFrame(renderFrame);
@@ -121,12 +136,28 @@ function drawClouds() {
   })
 }
 
-const character = {
-  x: 20,
-  y: BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT,
+function drawCharacter() {
+  character.draw(context);
 }
 
-function drawCharacter() {
-  if (sprites && sprites[Sprites.IDLE_R])
-    sprites[Sprites.IDLE_R].draw(context, character.x, character.y);
-}
+let isKeyDown = false;
+
+document.addEventListener('keydown', (e) => {
+  if (e.code === "ArrowRight") {
+    character.right();
+    isKeyDown = true;
+  }
+  else if (e.code === "ArrowLeft") {
+    character.left();
+    isKeyDown = true;
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (e.code === "ArrowRight") {
+    isKeyDown = false;
+  }
+  else if (e.code === "ArrowLeft") {
+    isKeyDown = false;
+  }
+});

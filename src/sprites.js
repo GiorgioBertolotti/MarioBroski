@@ -8,7 +8,7 @@ export default class Sprite {
   }
 
   draw(context, x, y) {
-    context.drawImage(this.image, this.x, this.y, this.width, this.height, x, y, this.width, this.height);
+    context.drawImage(this.image, this.x, this.y, this.width, this.height, Math.floor(x), Math.floor(y), this.width, this.height);
   }
 }
 
