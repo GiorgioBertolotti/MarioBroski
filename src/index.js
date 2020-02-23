@@ -9,12 +9,13 @@ const LUIGI_SPRITESHEET_FILE_NAME = './assets/sprites_luigi.png';
 const BG_FILE_NAME = './assets/bg.png';
 export const SCREEN_WIDTH = window.innerWidth;
 const SCREEN_HEIGHT = window.innerHeight;
-const BLACK_BAND_HEIGHT = Math.floor(SCREEN_HEIGHT * 0.2);
+// const BLACK_BAND_HEIGHT = Math.floor(SCREEN_HEIGHT * 0.2);
+const BLACK_BAND_HEIGHT = 0;
 const TILES_PER_COLUMN = 26;
-const TILE_SIZE = 16;
+const TILE_SIZE = 64;
 const SPRITE_PER_COLUMN = 3;
-const SPRITE_HEIGHT = 32;
-const SPRITE_WIDTH = 16;
+const SPRITE_HEIGHT = 128;
+const SPRITE_WIDTH = 64;
 const playgroundWidth = SCREEN_WIDTH;
 const playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
 
@@ -50,9 +51,9 @@ const clouds = initClouds();
 function loadTiles(ev) {
   const w = tileset.width;
   const h = tileset.height;
-  for (let x = 0; x < w - 1; x++) {
-    for (let y = 0; y < h - 1; y++) {
-      const tile = new Tile(tileset, x + 1, y + 1)
+  for (let x = 0; x < w - 4; x += 4) {
+    for (let y = 0; y < h - 4; y += 4) {
+      const tile = new Tile(tileset, x + 3, y + 3)
       tiles.push(tile);
       y += TILE_SIZE;
     }
@@ -65,9 +66,9 @@ function loadSprites(character) {
   const isMario = character === "mario";
   const w = isMario ? marioSpriteSheet.width : luigiSpriteSheet.width;
   const h = isMario ? marioSpriteSheet.height : luigiSpriteSheet.width;
-  for (let x = 0; x < w - 1; x++) {
-    for (let y = 0; y < h - 1; y++) {
-      const sprite = new Sprite(isMario ? marioSpriteSheet : luigiSpriteSheet, x + 1, y + 1)
+  for (let x = 0; x < w - 4; x += 4) {
+    for (let y = 0; y < h - 4; y += 4) {
+      const sprite = new Sprite(isMario ? marioSpriteSheet : luigiSpriteSheet, x + 4, y + 4)
       if (isMario)
         marioSprites.push(sprite);
       else
@@ -85,7 +86,7 @@ function initClouds() {
   return new Array(cloudsNumber).fill(0)
     .map((_, index) => ({
       x: (Math.floor(Math.random() * chunkWidth)) + (chunkWidth * index),
-      y: (Math.floor(Math.random() * (playgroundHeight / 2))) + BLACK_BAND_HEIGHT,
+      y: (Math.floor(Math.random() * (playgroundHeight / 4))) + BLACK_BAND_HEIGHT,
       type: Math.floor(Math.random() * 4),
       size: Math.floor(Math.random() * 2) + 2
     }));

@@ -3,7 +3,7 @@ export default class Tile {
     this.image = image;
     this.x = x;
     this.y = y;
-    this.size = 16;
+    this.size = 64;
   }
 
   draw(context, x, y) {
