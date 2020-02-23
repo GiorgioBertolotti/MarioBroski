@@ -78,7 +78,7 @@ function loadSprites(spriteSheet, spritesContainer) {
 function initClouds() {
   const maxClouds = 3;
   const cloudsNumber = Math.floor(Math.random() * maxClouds) + 2;
-  const chunkWidth = (playgroundWidth / cloudsNumber);
+  const chunkWidth = Math.floor((playgroundWidth / cloudsNumber));
   return new Array(cloudsNumber).fill(0)
     .map((_, index) => ({
       x: (Math.floor(Math.random() * chunkWidth)) + (chunkWidth * index),
