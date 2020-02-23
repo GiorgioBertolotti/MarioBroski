@@ -26,20 +26,30 @@ canvas.height = SCREEN_HEIGHT;
 const context = canvas.getContext("2d");
 context.strokeStyle = "#fff";
 
+// loading variables
+let loadedTileset = false;
+let loadedMarioSprites = false;
+let loadedLuigiSprites = false;
 // tileset
+const tiles = [];
 const tileset = new Image();
 tileset.src = TILESET_FILE_NAME;
 tileset.onload = loadTiles;
-const tiles = [];
 // sprite sheet
-const marioSpriteSheet = new Image();
 const marioSprites = [];
+const marioSpriteSheet = new Image();
 marioSpriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
-marioSpriteSheet.onload = () => loadSprites(marioSpriteSheet, marioSprites);
-const luigiSpriteSheet = new Image();
+marioSpriteSheet.onload = () => {
+  loadSprites(marioSpriteSheet, marioSprites);
+  loadedMarioSprites = true;
+}
 const luigiSprites = [];
+const luigiSpriteSheet = new Image();
 luigiSpriteSheet.src = LUIGI_SPRITESHEET_FILE_NAME;
-luigiSpriteSheet.onload = () => loadSprites(luigiSpriteSheet, luigiSprites);
+luigiSpriteSheet.onload = () => {
+  loadSprites(luigiSpriteSheet, luigiSprites);
+  loadedLuigiSprites = true;
+}
 // character
 const character = new Character(marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
 // background
@@ -47,6 +57,9 @@ const background = new Image();
 background.src = BG_FILE_NAME;
 // cloud generation
 const clouds = initClouds();
+
+// start rendering
+renderFrame();
 
 function loadTiles(ev) {
   const w = tileset.width;
@@ -59,7 +72,7 @@ function loadTiles(ev) {
     }
     x += TILE_SIZE;
   }
-  renderFrame();
+  loadedTileset = true;
 }
 
 function loadSprites(spriteSheet, spritesContainer) {
@@ -90,14 +103,25 @@ function initClouds() {
 
 function renderFrame() {
   context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  drawBackground();
-  drawGround();
-  drawClouds();
-  if (!isKeyDown)
-    character.slow();
-  drawCharacter();
+  if (loadedTileset && loadedMarioSprites && loadedLuigiSprites) {
+    drawBackground();
+    drawGround();
+    drawClouds();
+    if (!isKeyDown)
+      character.slow();
+    drawCharacter();
+  } else {
+    drawLoading();
+  }
 
   requestAnimationFrame(renderFrame);
+}
+
+function drawLoading() {
+  context.font = "30px";
+  context.fillStyle = "white";
+  context.textAlign = "center";
+  context.fillText("LOADING", canvas.width / 2, canvas.height / 2);
 }
 
 function drawBackground() {
