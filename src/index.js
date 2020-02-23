@@ -83,7 +83,7 @@ function initClouds() {
     .map((_, index) => ({
       x: (Math.floor(Math.random() * chunkWidth)) + (chunkWidth * index),
       y: (Math.floor(Math.random() * (playgroundHeight / 4))) + BLACK_BAND_HEIGHT,
-      type: Math.floor(Math.random() * 4),
+      type: 0,
       size: Math.floor(Math.random() * 2) + 2
     }));
 }
@@ -122,14 +122,22 @@ function drawGround() {
 }
 
 function drawClouds() {
-  clouds.forEach((cloudPos) => {
-    tiles[Tiles.CLOUD_START_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x, cloudPos.y);
-    if (cloudPos.size > 2)
-      tiles[Tiles.CLOUD_MIDDLE_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x + TILE_SIZE, cloudPos.y);
-    if (cloudPos.size > 2)
-      tiles[Tiles.CLOUD_END_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x + (TILE_SIZE * 2), cloudPos.y);
+  clouds.forEach((cloud) => {
+    const now = new Date().getTime();
+    tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x, cloud.y);
+    if (cloud.size > 2)
+      tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
+    if (cloud.size > 2)
+      tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + (TILE_SIZE * 2), cloud.y);
     else
-      tiles[Tiles.CLOUD_END_TILE + (cloudPos.type * TILES_PER_COLUMN)].draw(context, cloudPos.x + TILE_SIZE, cloudPos.y);
+      tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
+    if (!cloud.lastTypeChange)
+      cloud.lastTypeChange = now;
+    if (now - cloud.lastTypeChange > 400) {
+      cloud.type++;
+      cloud.type = cloud.type % 3;
+      cloud.lastTypeChange = now;
+    }
   })
 }
 

@@ -22,7 +22,11 @@ export const Sprites = {
   IDLE_L: 1,
   WALK_L_1: 4,
   WALK_L_2: 7,
+  JUMP_L: 16,
   IDLE_R: 2,
   WALK_R_1: 5,
   WALK_R_2: 8,
+  JUMP_R: 17,
 }
+
+export const rightSprites = [Sprites.IDLE_R, Sprites.WALK_R_1, Sprites.WALK_R_2, Sprites.JUMP_R];

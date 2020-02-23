@@ -1,4 +1,4 @@
-import { Sprites } from "./sprites.js";
+import { Sprites, rightSprites } from "./sprites.js";
 import { SCREEN_WIDTH } from "./index.js";
 
 export default class Character {
@@ -6,6 +6,8 @@ export default class Character {
     this.spriteSheet = spriteSheet;
     this.x = x;
     this.y = y;
+    this.startX = x;
+    this.startY = y;
     this.speed = 0;
     this.acceleration = 0;
     this.prevSprite = Sprites.IDLE_R;
@@ -43,11 +45,18 @@ export default class Character {
     // new sprite recalculation
     let sprite = this.prevSprite;
     const now = new Date().getTime();
-    if (prevX < this.x) {
+    if (this.y < this.startY) {
+      // jumping
+      if (rightSprites.includes(sprite)) {
+        sprite = Sprites.JUMP_R;
+      } else {
+        sprite = Sprites.JUMP_L;
+      }
+    } else if (prevX < this.x) {
       // walk right
       if (!this.lastWalkRight)
         this.lastWalkRight = now;
-      if (this.lastWalkRight && now - this.lastWalkRight > 250) {
+      if (now - this.lastWalkRight > 250) {
         if (sprite === Sprites.WALK_R_1)
           sprite = Sprites.WALK_R_2;
         else
@@ -62,7 +71,7 @@ export default class Character {
         // walk left
         if (!this.lastWalkLeft)
           this.lastWalkLeft = now;
-        if (this.lastWalkLeft && now - this.lastWalkLeft > 250) {
+        if (now - this.lastWalkLeft > 250) {
           if (sprite === Sprites.WALK_L_1)
             sprite = Sprites.WALK_L_2;
           else
@@ -74,10 +83,11 @@ export default class Character {
         }
       } else {
         // idle
-        if (sprite === Sprites.WALK_R_1 || sprite === Sprites.WALK_R_2 || sprite === Sprites.IDLE_R) {
+        if (rightSprites.includes(sprite)) {
           sprite = Sprites.IDLE_R;
-        } else
+        } else {
           sprite = Sprites.IDLE_L;
+        }
       }
     }
     // draw new position
