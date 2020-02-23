@@ -1,5 +1,5 @@
 import { Sprites, rightSprites } from "./sprites.js";
-import { SCREEN_WIDTH } from "./index.js";
+import { SCREEN_WIDTH, SPRITE_HEIGHT } from "./index.js";
 
 export default class Character {
   constructor(spriteSheet, x, y) {
@@ -10,6 +10,7 @@ export default class Character {
     this.startY = y;
     this.speed = 0;
     this.acceleration = 0;
+    this.verticalAcceleration = 0;
     this.prevSprite = Sprites.IDLE_R;
   }
 
@@ -36,38 +37,67 @@ export default class Character {
       this.speed = -5;
     // position recalculation
     const prevX = this.x;
+    // horizontal axis
     if (this.speed !== 0) {
       this.x += this.speed;
       this.x = this.x % SCREEN_WIDTH;
       if (this.x < 0)
         this.x = SCREEN_WIDTH;
     }
+    // vertical axis
+    if (this.verticalAcceleration !== 0) {
+      this.y -= this.verticalAcceleration;
+      this.verticalAcceleration -= 0.2;
+    } else {
+      this.y += 0.2;
+    }
+    if (this.y > this.startY) {
+      this.y = this.startY;
+      this.verticalAcceleration = 0;
+    }
     // new sprite recalculation
     let sprite = this.prevSprite;
     const now = new Date().getTime();
     if (this.y < this.startY) {
       // jumping
-      if (rightSprites.includes(sprite)) {
+      if (this.direction) {
+        if (this.direction === Directions.RIGHT)
+          sprite = Sprites.JUMP_R;
+        else
+          sprite = Sprites.JUMP_L;
+      } else if (rightSprites.includes(sprite)) {
         sprite = Sprites.JUMP_R;
       } else {
         sprite = Sprites.JUMP_L;
       }
-    } else if (prevX < this.x) {
-      // walk right
-      if (!this.lastWalkRight)
-        this.lastWalkRight = now;
-      if (now - this.lastWalkRight > 250) {
-        if (sprite === Sprites.WALK_R_1)
-          sprite = Sprites.WALK_R_2;
+    } else if (prevX === this.x) {
+      // idle
+      if (this.direction) {
+        if (this.direction === Directions.RIGHT)
+          sprite = Sprites.IDLE_R;
         else
-          sprite = Sprites.WALK_R_1;
-        this.lastWalkRight = now;
+          sprite = Sprites.IDLE_L;
+      } else if (rightSprites.includes(sprite)) {
+        sprite = Sprites.IDLE_R;
       } else {
-        if (sprite !== Sprites.WALK_R_1 && sprite !== Sprites.WALK_R_2)
-          sprite = Sprites.WALK_R_1;
+        sprite = Sprites.IDLE_L;
       }
-    } else {
-      if (prevX > this.x) {
+    } else if (this.direction) {
+      if (this.direction === Directions.RIGHT) {
+        // walk right
+        if (!this.lastWalkRight)
+          this.lastWalkRight = now;
+        if (now - this.lastWalkRight > 250) {
+          if (sprite === Sprites.WALK_R_1)
+            sprite = Sprites.WALK_R_2;
+          else
+            sprite = Sprites.WALK_R_1;
+          this.lastWalkRight = now;
+        } else {
+          if (sprite !== Sprites.WALK_R_1 && sprite !== Sprites.WALK_R_2)
+            sprite = Sprites.WALK_R_1;
+        }
+      } else {
         // walk left
         if (!this.lastWalkLeft)
           this.lastWalkLeft = now;
@@ -80,13 +110,6 @@ export default class Character {
         } else {
           if (sprite !== Sprites.WALK_L_1 && sprite !== Sprites.WALK_L_2)
             sprite = Sprites.WALK_L_1;
-        }
-      } else {
-        // idle
-        if (rightSprites.includes(sprite)) {
-          sprite = Sprites.IDLE_R;
-        } else {
-          sprite = Sprites.IDLE_L;
         }
       }
     }
@@ -102,6 +125,7 @@ export default class Character {
       this.acceleration = 0.2;
     else if (this.acceleration < 0.6)
       this.acceleration += 0.2;
+    this.direction = Directions.RIGHT;
   }
 
   left() {
@@ -109,6 +133,7 @@ export default class Character {
       this.acceleration = -0.2;
     else if (this.acceleration > -0.6)
       this.acceleration -= 0.2;
+    this.direction = Directions.LEFT;
   }
 
   slow() {
@@ -124,4 +149,15 @@ export default class Character {
       }
     }
   }
+
+  jump() {
+    if (this.verticalAcceleration === 0) {
+      this.verticalAcceleration = 6;
+    }
+  }
+}
+
+const Directions = {
+  RIGHT: 1,
+  LEFT: -1,
 }

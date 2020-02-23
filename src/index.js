@@ -14,7 +14,7 @@ const BLACK_BAND_HEIGHT = 0;
 const TILES_PER_COLUMN = 26;
 const TILE_SIZE = 64;
 const SPRITE_PER_COLUMN = 3;
-const SPRITE_HEIGHT = 128;
+export const SPRITE_HEIGHT = 128;
 const SPRITE_WIDTH = 64;
 const playgroundWidth = SCREEN_WIDTH;
 const playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
@@ -148,21 +148,29 @@ function drawCharacter() {
 let isKeyDown = false;
 
 document.addEventListener('keydown', (e) => {
-  if (e.code === "ArrowRight") {
-    character.right();
-    isKeyDown = true;
-  }
-  else if (e.code === "ArrowLeft") {
-    character.left();
-    isKeyDown = true;
+  switch (e.code) {
+    case "ArrowRight":
+      character.right();
+      isKeyDown = true;
+      break;
+    case "ArrowLeft":
+      character.left();
+      isKeyDown = true;
+      break;
+    case "ArrowUp":
+    case "Space":
+      character.jump();
+      break;
+    default: break;
   }
 });
 
 document.addEventListener('keyup', (e) => {
-  if (e.code === "ArrowRight") {
-    isKeyDown = false;
-  }
-  else if (e.code === "ArrowLeft") {
-    isKeyDown = false;
+  switch (e.code) {
+    case "ArrowRight":
+    case "ArrowLeft":
+      isKeyDown = false;
+      break;
+    default: break;
   }
 });
