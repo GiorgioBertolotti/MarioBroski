@@ -33,13 +33,13 @@ tileset.onload = loadTiles;
 const tiles = [];
 // sprite sheet
 const marioSpriteSheet = new Image();
-marioSpriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
-marioSpriteSheet.onload = () => loadSprites("mario");
 const marioSprites = [];
+marioSpriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
+marioSpriteSheet.onload = () => loadSprites(marioSpriteSheet, marioSprites);
 const luigiSpriteSheet = new Image();
-luigiSpriteSheet.src = LUIGI_SPRITESHEET_FILE_NAME;
-luigiSpriteSheet.onload = () => loadSprites("luigi");
 const luigiSprites = [];
+luigiSpriteSheet.src = LUIGI_SPRITESHEET_FILE_NAME;
+luigiSpriteSheet.onload = () => loadSprites(luigiSpriteSheet, luigiSprites);
 // character
 const character = new Character(marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
 // background
@@ -62,17 +62,13 @@ function loadTiles(ev) {
   renderFrame();
 }
 
-function loadSprites(character) {
-  const isMario = character === "mario";
-  const w = isMario ? marioSpriteSheet.width : luigiSpriteSheet.width;
-  const h = isMario ? marioSpriteSheet.height : luigiSpriteSheet.width;
+function loadSprites(spriteSheet, spritesContainer) {
+  const w = spriteSheet.width;
+  const h = spriteSheet.height;
   for (let x = 0; x < w - 4; x += 4) {
     for (let y = 0; y < h - 4; y += 4) {
-      const sprite = new Sprite(isMario ? marioSpriteSheet : luigiSpriteSheet, x + 4, y + 4)
-      if (isMario)
-        marioSprites.push(sprite);
-      else
-        luigiSprites.push(sprite);
+      const sprite = new Sprite(spriteSheet, x + 4, y + 4)
+      spritesContainer.push(sprite);
       y += SPRITE_HEIGHT;
     }
     x += SPRITE_WIDTH;
