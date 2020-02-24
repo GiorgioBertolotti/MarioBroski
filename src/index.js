@@ -1,30 +1,31 @@
 import Tile, { Tiles } from './tiles.js';
 import Sprite from './sprites.js';
 import Character from './character.js';
+import { Colors } from './colors.js';
 
 // consts
 const TILESET_FILE_NAME = './assets/tileset.png';
 const MARIO_SPRITESHEET_FILE_NAME = './assets/sprites_mario.png';
 const LUIGI_SPRITESHEET_FILE_NAME = './assets/sprites_luigi.png';
 const BG_FILE_NAME = './assets/bg.png';
-export const SCREEN_WIDTH = window.innerWidth;
-const SCREEN_HEIGHT = window.innerHeight;
+let SCREEN_WIDTH = window.innerWidth;
+let SCREEN_HEIGHT = window.innerHeight;
 // const BLACK_BAND_HEIGHT = Math.floor(SCREEN_HEIGHT * 0.2);
 const BLACK_BAND_HEIGHT = 0;
 const TILES_PER_COLUMN = 26;
-const TILE_SIZE = 64;
+export const TILE_SIZE = 64;
 const SPRITE_PER_COLUMN = 3;
 export const SPRITE_HEIGHT = 128;
 const SPRITE_WIDTH = 64;
-const playgroundWidth = SCREEN_WIDTH;
-const playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
+export let playgroundWidth = SCREEN_WIDTH;
+export let playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
 
 // canvas
 const canvas = document.getElementById("canvas");
 canvas.width = SCREEN_WIDTH;
 canvas.height = SCREEN_HEIGHT;
 const context = canvas.getContext("2d");
-context.strokeStyle = "#fff";
+context.strokeStyle = Colors.WHITE;
 
 // loading variables
 let loadedTileset = false;
@@ -97,7 +98,8 @@ function initClouds() {
       x: (Math.floor(Math.random() * chunkWidth)) + (chunkWidth * index),
       y: (Math.floor(Math.random() * (playgroundHeight / 4))) + BLACK_BAND_HEIGHT,
       type: 0,
-      size: Math.floor(Math.random() * 2) + 2
+      size: Math.floor(Math.random() * 2) + 2,
+      disabled: false
     }));
 }
 
@@ -126,7 +128,7 @@ function drawLoading() {
 
 function drawBackground() {
   // sky
-  context.fillStyle = "#6b8cff";
+  context.fillStyle = Colors.SKY;
   context.fillRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
   // background
   const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - background.height;
@@ -147,22 +149,24 @@ function drawGround() {
 
 function drawClouds() {
   clouds.forEach((cloud) => {
-    const now = new Date().getTime();
-    tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x, cloud.y);
-    if (cloud.size > 2)
-      tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
-    if (cloud.size > 2)
-      tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + (TILE_SIZE * 2), cloud.y);
-    else
-      tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
-    if (!cloud.lastTypeChange)
-      cloud.lastTypeChange = now;
-    if (now - cloud.lastTypeChange > 400) {
-      cloud.type++;
-      cloud.type = cloud.type % 3;
-      cloud.lastTypeChange = now;
+    if (!cloud.disabled) {
+      const now = new Date().getTime();
+      tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x, cloud.y);
+      if (cloud.size > 2)
+        tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
+      if (cloud.size > 2)
+        tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + (TILE_SIZE * 2), cloud.y);
+      else
+        tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
+      if (!cloud.lastTypeChange)
+        cloud.lastTypeChange = now;
+      if (now - cloud.lastTypeChange > 400) {
+        cloud.type++;
+        cloud.type = cloud.type % 3;
+        cloud.lastTypeChange = now;
+      }
     }
-  })
+  });
 }
 
 function drawCharacter() {
@@ -197,4 +201,27 @@ document.addEventListener('keyup', (e) => {
       break;
     default: break;
   }
+});
+
+window.addEventListener("resize", () => {
+  const oldScreenWidth = SCREEN_WIDTH;
+  const oldScreenHeight = SCREEN_HEIGHT;
+  SCREEN_WIDTH = window.innerWidth;
+  SCREEN_HEIGHT = window.innerHeight;
+  canvas.width = SCREEN_WIDTH;
+  canvas.height = SCREEN_HEIGHT;
+  playgroundWidth = SCREEN_WIDTH;
+  playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
+  if (oldScreenHeight !== SCREEN_HEIGHT) {
+    character.recalculateY();
+  }
+  clouds.forEach((cloud) => {
+    const oldYPerc = cloud.y / oldScreenHeight;
+    const newY = oldYPerc * SCREEN_HEIGHT;
+    cloud.y = Math.floor(newY);
+    if (cloud.y + TILE_SIZE > playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT)
+      cloud.disabled = true;
+    else
+      cloud.disabled = false;
+  });
 });

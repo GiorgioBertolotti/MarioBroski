@@ -1,5 +1,5 @@
 import { Sprites, rightSprites } from "./sprites.js";
-import { SCREEN_WIDTH, SPRITE_HEIGHT } from "./index.js";
+import { TILE_SIZE, playgroundWidth, playgroundHeight, SPRITE_HEIGHT } from "./index.js";
 
 export default class Character {
   constructor(spriteSheet, x, y) {
@@ -40,9 +40,9 @@ export default class Character {
     // horizontal axis
     if (this.speed !== 0) {
       this.x += this.speed;
-      this.x = this.x % SCREEN_WIDTH;
+      this.x = this.x % playgroundWidth;
       if (this.x < 0)
-        this.x = SCREEN_WIDTH;
+        this.x = playgroundWidth;
     }
     // vertical axis
     if (this.verticalAcceleration !== 0) {
@@ -154,6 +154,13 @@ export default class Character {
     if (this.verticalAcceleration === 0) {
       this.verticalAcceleration = 6;
     }
+  }
+
+  recalculateY() {
+    const distanceFromGround = this.y - this.startY;
+    const newGroundPosition = playgroundHeight - (TILE_SIZE * 2);
+    this.y = newGroundPosition - distanceFromGround - SPRITE_HEIGHT;
+    this.startY = newGroundPosition - SPRITE_HEIGHT;
   }
 }
 

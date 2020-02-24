@@ -1,4 +1,4 @@
-import { SCREEN_WIDTH } from "./index.js";
+import { playgroundWidth } from "./index.js";
 
 export default class Sprite {
   constructor(image, x, y) {
@@ -11,8 +11,8 @@ export default class Sprite {
 
   draw(context, x, y) {
     context.drawImage(this.image, this.x, this.y, this.width, this.height, Math.floor(x), Math.floor(y), this.width, this.height);
-    if (x + this.width > SCREEN_WIDTH) {
-      const halfSpriteSize = x + this.width - SCREEN_WIDTH;
+    if (x + this.width > playgroundWidth) {
+      const halfSpriteSize = x + this.width - playgroundWidth;
       context.drawImage(this.image, this.x + this.width - halfSpriteSize, this.y, halfSpriteSize, this.height, 0, Math.floor(y), Math.floor(halfSpriteSize), this.height);
     }
   }
