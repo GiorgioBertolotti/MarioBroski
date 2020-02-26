@@ -60,7 +60,7 @@ background.src = BG_FILE_NAME;
 const clouds = initClouds();
 
 // start rendering
-renderFrame();
+renderLoading();
 
 function loadTiles(ev) {
   const w = tileset.width;
@@ -103,18 +103,23 @@ function initClouds() {
     }));
 }
 
+function renderLoading() {
+  context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
+  drawLoading();
+
+  const allLoaded = loadedTileset && loadedMarioSprites && loadedLuigiSprites;
+  const nextRenderer =  allLoaded ? renderFrame : renderLoading;
+  requestAnimationFrame(nextRenderer);
+}
+
 function renderFrame() {
   context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  if (loadedTileset && loadedMarioSprites && loadedLuigiSprites) {
-    drawBackground();
-    drawGround();
-    drawClouds();
-    if (!isKeyDown)
-      character.slow();
-    drawCharacter();
-  } else {
-    drawLoading();
-  }
+  drawBackground();
+  drawGround();
+  drawClouds();
+  if (!isKeyDown)
+    character.slow();
+  drawCharacter();
 
   requestAnimationFrame(renderFrame);
 }
