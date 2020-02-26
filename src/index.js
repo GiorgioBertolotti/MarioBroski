@@ -2,6 +2,7 @@ import Tile, { Tiles } from './tiles.js';
 import Sprite from './sprites.js';
 import Character from './character.js';
 import { Colors } from './colors.js';
+import { createLayersStack } from './layer.js';
 
 // consts
 const TILESET_FILE_NAME = './assets/tileset.png';
@@ -62,6 +63,26 @@ const clouds = initClouds();
 // start rendering
 renderLoading();
 
+// layers definition
+const layers = createLayersStack([
+  {
+    render: drawBackground,
+    depth: 0,
+  },
+  {
+    render: drawGround,
+    depth: 60,
+  },
+  {
+    render: drawClouds,
+    depth: 70,
+  },
+  {
+    render: drawCharacter,
+    depth: 100,
+  },
+])
+
 function loadTiles(ev) {
   const w = tileset.width;
   const h = tileset.height;
@@ -105,33 +126,36 @@ function initClouds() {
 
 function renderLoading() {
   context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  drawLoading();
+  drawLoading(context);
 
   const allLoaded = loadedTileset && loadedMarioSprites && loadedLuigiSprites;
-  const nextRenderer =  allLoaded ? renderFrame : renderLoading;
+  const nextRenderer =  allLoaded ? onStartWorld : renderLoading;
   requestAnimationFrame(nextRenderer);
+}
+
+function onStartWorld() {
+  context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
+  layers.drawOnStart(context);
+  requestAnimationFrame(renderFrame);
 }
 
 function renderFrame() {
   context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  drawBackground();
-  drawGround();
-  drawClouds();
   if (!isKeyDown)
     character.slow();
-  drawCharacter();
+  layers.render(context);
 
   requestAnimationFrame(renderFrame);
 }
 
-function drawLoading() {
+function drawLoading(context) {
   context.font = "30px";
   context.fillStyle = "white";
   context.textAlign = "center";
   context.fillText("LOADING", canvas.width / 2, canvas.height / 2);
 }
 
-function drawBackground() {
+function drawBackground(context) {
   // sky
   context.fillStyle = Colors.SKY;
   context.fillRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
@@ -143,7 +167,7 @@ function drawBackground() {
   }
 }
 
-function drawGround() {
+function drawGround(context) {
   const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2);
   const numTiles = Math.floor(playgroundWidth / TILE_SIZE) + 1;
   for (let i = 0; i < numTiles; i++) {
@@ -152,7 +176,7 @@ function drawGround() {
   }
 }
 
-function drawClouds() {
+function drawClouds(context) {
   clouds.forEach((cloud) => {
     if (!cloud.disabled) {
       const now = new Date().getTime();
@@ -174,7 +198,7 @@ function drawClouds() {
   });
 }
 
-function drawCharacter() {
+function drawCharacter(context) {
   character.draw(context);
 }
 
