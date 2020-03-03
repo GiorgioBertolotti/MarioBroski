@@ -77,7 +77,7 @@ loadImages().then((loaded) => {
   ])
   // start rendering
   const renderer = createRenderer(layers);
-  addListeners(character);
+  addListeners(character, clouds);
   renderer();
 });
 
@@ -180,7 +180,7 @@ function drawClouds(context, clouds, tiles) {
   });
 }
 
-function addListeners(character) {
+function addListeners(character, clouds) {
   document.addEventListener('keydown', (e) => {
     switch (e.code) {
       case "ArrowRight":
@@ -206,27 +206,28 @@ function addListeners(character) {
       default: break;
     }
   });
-}
 
-window.addEventListener("resize", () => {
-  const oldScreenWidth = SCREEN_WIDTH;
-  const oldScreenHeight = SCREEN_HEIGHT;
-  SCREEN_WIDTH = window.innerWidth;
-  SCREEN_HEIGHT = window.innerHeight;
-  canvas.width = SCREEN_WIDTH;
-  canvas.height = SCREEN_HEIGHT;
-  playgroundWidth = SCREEN_WIDTH;
-  playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
-  if (oldScreenHeight !== SCREEN_HEIGHT) {
-    character.recalculateY();
-  }
-  clouds.forEach((cloud) => {
-    const oldYPerc = cloud.y / oldScreenHeight;
-    const newY = oldYPerc * SCREEN_HEIGHT;
-    cloud.y = Math.floor(newY);
-    if (cloud.y + TILE_SIZE > playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT)
-      cloud.disabled = true;
-    else
-      cloud.disabled = false;
+  window.addEventListener("resize", () => {
+    const oldScreenWidth = SCREEN_WIDTH;
+    const oldScreenHeight = SCREEN_HEIGHT;
+    SCREEN_WIDTH = window.innerWidth;
+    SCREEN_HEIGHT = window.innerHeight;
+    canvas.width = SCREEN_WIDTH;
+    canvas.height = SCREEN_HEIGHT;
+    playgroundWidth = SCREEN_WIDTH;
+    playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
+    if (oldScreenHeight !== SCREEN_HEIGHT) {
+      character.recalculateY();
+    }
+    clouds.forEach((cloud) => {
+      const oldYPerc = cloud.y / oldScreenHeight;
+      const newY = oldYPerc * SCREEN_HEIGHT;
+      cloud.y = Math.floor(newY);
+      if (cloud.y + TILE_SIZE > playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT) {
+        cloud.disabled = true;
+      } else {
+        cloud.disabled = false;
+      }
+    });
   });
-});
+}
