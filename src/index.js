@@ -28,62 +28,63 @@ canvas.height = SCREEN_HEIGHT;
 const context = canvas.getContext("2d");
 context.strokeStyle = Colors.WHITE;
 
-// loading variables
-let loadedTileset = false;
-let loadedMarioSprites = false;
-let loadedLuigiSprites = false;
-// tileset
-const tiles = [];
-const tileset = new Image();
-tileset.src = TILESET_FILE_NAME;
-tileset.onload = loadTiles;
 // sprite sheet
-const marioSprites = [];
-const marioSpriteSheet = new Image();
-marioSpriteSheet.src = MARIO_SPRITESHEET_FILE_NAME;
-marioSpriteSheet.onload = () => {
-  loadSprites(marioSpriteSheet, marioSprites);
-  loadedMarioSprites = true;
+function loadImage(imageSrc) {
+  const promise = new Promise(resolve => {
+    const img = new Image();
+    img.src = imageSrc;
+    img.onload = () => {
+      resolve(img)
+    }
+  })
+  return promise;
 }
-const luigiSprites = [];
-const luigiSpriteSheet = new Image();
-luigiSpriteSheet.src = LUIGI_SPRITESHEET_FILE_NAME;
-luigiSpriteSheet.onload = () => {
-  loadSprites(luigiSpriteSheet, luigiSprites);
-  loadedLuigiSprites = true;
+
+async function loadImages() {
+  const loader = Promise.all([
+    loadImage(MARIO_SPRITESHEET_FILE_NAME).then(loadSprites),
+    loadImage(LUIGI_SPRITESHEET_FILE_NAME).then(loadSprites),
+    loadImage(TILESET_FILE_NAME).then(loadTiles),
+    loadImage(BG_FILE_NAME)
+  ]);
+  const [marioSprites, luigiSprite, tiles, background] = await loader;
+  return { marioSprites, luigiSprite, tiles, background };
 }
-// character
-const character = new Character(marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
-// background
-const background = new Image();
-background.src = BG_FILE_NAME;
-// cloud generation
-const clouds = initClouds();
 
-// start rendering
-renderLoading();
+loadImages().then((loaded) => {
+  // character
+  const character = new Character(loaded.marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
+  // cloud generation
+  const clouds = initClouds();
+  // layers definition
+  const layers = createLayersStack([
+    {
+      render: (context) => drawBackground(context, loaded.background),
+      depth: 0,
+    },
+    {
+      render: (context) => drawGround(context, loaded.tiles),
+      depth: 60,
+    },
+    {
+      render: (context) => drawClouds(context, clouds, loaded.tiles),
+      depth: 70,
+    },
+    {
+      render: (context) => character.draw(context),
+      depth: 100,
+    },
+  ])
+  // start rendering
+  const renderer = createRenderer(layers);
+  addListeners(character);
+  renderer();
+});
 
-// layers definition
-const layers = createLayersStack([
-  {
-    render: drawBackground,
-    depth: 0,
-  },
-  {
-    render: drawGround,
-    depth: 60,
-  },
-  {
-    render: drawClouds,
-    depth: 70,
-  },
-  {
-    render: drawCharacter,
-    depth: 100,
-  },
-])
 
-function loadTiles(ev) {
+
+function loadTiles(tileset) {
+  const tiles = [];
   const w = tileset.width;
   const h = tileset.height;
   for (let x = 0; x < w - 4; x += 4) {
@@ -94,10 +95,11 @@ function loadTiles(ev) {
     }
     x += TILE_SIZE;
   }
-  loadedTileset = true;
+  return tiles;
 }
 
-function loadSprites(spriteSheet, spritesContainer) {
+function loadSprites(spriteSheet) {
+  const spritesContainer = [];
   const w = spriteSheet.width;
   const h = spriteSheet.height;
   for (let x = 0; x < w - 4; x += 4) {
@@ -108,6 +110,7 @@ function loadSprites(spriteSheet, spritesContainer) {
     }
     x += SPRITE_WIDTH;
   }
+  return spritesContainer;
 }
 
 function initClouds() {
@@ -124,38 +127,17 @@ function initClouds() {
     }));
 }
 
-function renderLoading() {
-  context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  drawLoading(context);
+function createRenderer(layers) {
+  function renderFrame() {
+    context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
+    layers.render(context);
 
-  const allLoaded = loadedTileset && loadedMarioSprites && loadedLuigiSprites;
-  const nextRenderer =  allLoaded ? onStartWorld : renderLoading;
-  requestAnimationFrame(nextRenderer);
+    requestAnimationFrame(renderFrame);
+  }
+  return renderFrame;
 }
 
-function onStartWorld() {
-  context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  layers.drawOnStart(context);
-  requestAnimationFrame(renderFrame);
-}
-
-function renderFrame() {
-  context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  if (!isKeyDown)
-    character.slow();
-  layers.render(context);
-
-  requestAnimationFrame(renderFrame);
-}
-
-function drawLoading(context) {
-  context.font = "30px";
-  context.fillStyle = "white";
-  context.textAlign = "center";
-  context.fillText("LOADING", canvas.width / 2, canvas.height / 2);
-}
-
-function drawBackground(context) {
+function drawBackground(context, background) {
   // sky
   context.fillStyle = Colors.SKY;
   context.fillRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
@@ -167,7 +149,7 @@ function drawBackground(context) {
   }
 }
 
-function drawGround(context) {
+function drawGround(context, tiles) {
   const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2);
   const numTiles = Math.floor(playgroundWidth / TILE_SIZE) + 1;
   for (let i = 0; i < numTiles; i++) {
@@ -176,7 +158,7 @@ function drawGround(context) {
   }
 }
 
-function drawClouds(context) {
+function drawClouds(context, clouds, tiles) {
   clouds.forEach((cloud) => {
     if (!cloud.disabled) {
       const now = new Date().getTime();
@@ -198,39 +180,33 @@ function drawClouds(context) {
   });
 }
 
-function drawCharacter(context) {
-  character.draw(context);
+function addListeners(character) {
+  document.addEventListener('keydown', (e) => {
+    switch (e.code) {
+      case "ArrowRight":
+        character.right();
+        break;
+      case "ArrowLeft":
+        character.left();
+        break;
+      case "ArrowUp":
+      case "Space":
+        character.jump();
+        break;
+      default: break;
+    }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    switch (e.code) {
+      case "ArrowRight":
+      case "ArrowLeft":
+        character.slow();
+        break;
+      default: break;
+    }
+  });
 }
-
-let isKeyDown = false;
-
-document.addEventListener('keydown', (e) => {
-  switch (e.code) {
-    case "ArrowRight":
-      character.right();
-      isKeyDown = true;
-      break;
-    case "ArrowLeft":
-      character.left();
-      isKeyDown = true;
-      break;
-    case "ArrowUp":
-    case "Space":
-      character.jump();
-      break;
-    default: break;
-  }
-});
-
-document.addEventListener('keyup', (e) => {
-  switch (e.code) {
-    case "ArrowRight":
-    case "ArrowLeft":
-      isKeyDown = false;
-      break;
-    default: break;
-  }
-});
 
 window.addEventListener("resize", () => {
   const oldScreenWidth = SCREEN_WIDTH;

@@ -20,21 +20,19 @@ export default class Character {
 
   draw(context) {
     // speed recalculation
-    if (this.acceleration !== 0)
+    if (this.acceleration !== 0) {
       this.speed += this.acceleration;
-    else {
-      if (this.speed > 0)
-        this.speed -= 0.1 * this.speed
-      else if (this.speed < 0)
-        this.speed += 0.1 * -this.speed
+      if (this.speed > 5) {
+        this.speed = 5
+      } if (this.speed < -5) {
+        this.speed = -5;
+      }
+    } else {
+      this.speed -= 0.1 * this.speed
     }
     if (Math.abs(this.speed) < 0.1) {
       this.speed = 0;
     }
-    if (this.speed > 5)
-      this.speed = 5
-    if (this.speed < -5)
-      this.speed = -5;
     // position recalculation
     const prevX = this.x;
     // horizontal axis
@@ -137,17 +135,7 @@ export default class Character {
   }
 
   slow() {
-    if (this.acceleration !== 0) {
-      if (Math.abs(this.acceleration) < 0.1) {
-        this.acceleration = 0;
-      } else {
-        if (this.acceleration > 0) {
-          this.acceleration -= 0.2;
-        } else {
-          this.acceleration += 0.2;
-        }
-      }
-    }
+    this.acceleration = 0;
   }
 
   jump() {
