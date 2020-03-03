@@ -1,5 +1,5 @@
 import { Sprites, rightSprites } from "./sprites.js";
-import { TILE_SIZE, playgroundWidth, playgroundHeight, SPRITE_HEIGHT } from "./index.js";
+import { TILE_SIZE, playgroundWidth, playgroundHeight, SPRITE_HEIGHT, SPRITE_WIDTH } from "./index.js";
 
 export default class Character {
   constructor(spriteSheet, x, y) {
@@ -10,7 +10,7 @@ export default class Character {
     this.startY = y;
     this.speed = 0;
     this.acceleration = 0;
-    this.verticalAcceleration = 0;
+    this.verticalSpeed = 0;
     this.prevSprite = Sprites.IDLE_R;
   }
 
@@ -38,20 +38,21 @@ export default class Character {
     // horizontal axis
     if (this.speed !== 0) {
       this.x += this.speed;
-      this.x = this.x % playgroundWidth;
       if (this.x < 0)
-        this.x = playgroundWidth;
+        this.x = 0;
+      if (this.x > playgroundWidth - SPRITE_WIDTH)
+        this.x = playgroundWidth - SPRITE_WIDTH;
     }
     // vertical axis
-    if (this.verticalAcceleration !== 0) {
-      this.y -= this.verticalAcceleration;
-      this.verticalAcceleration -= 0.2;
+    if (this.verticalSpeed !== 0) {
+      this.y -= this.verticalSpeed;
+      this.verticalSpeed -= 0.2;
     } else {
       this.y += 0.2;
     }
     if (this.y > this.startY) {
       this.y = this.startY;
-      this.verticalAcceleration = 0;
+      this.verticalSpeed = 0;
     }
     // new sprite recalculation
     let sprite = this.prevSprite;
@@ -138,9 +139,18 @@ export default class Character {
     this.acceleration = 0;
   }
 
+  stop() {
+    this.acceleration = 0;
+    this.speed = 0;
+  }
+
+  stopVertical() {
+    this.verticalSpeed = 0;
+  }
+
   jump() {
-    if (this.verticalAcceleration === 0) {
-      this.verticalAcceleration = 6;
+    if (this.verticalSpeed === 0) {
+      this.verticalSpeed = 6;
     }
   }
 

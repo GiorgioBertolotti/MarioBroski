@@ -1,8 +1,7 @@
-import Tile, { Tiles } from './tiles.js';
+import Tile from './tiles.js';
 import Sprite from './sprites.js';
-import Character from './character.js';
 import { Colors } from './colors.js';
-import { createLayersStack } from './layer.js';
+import World from './world.js';
 
 // consts
 const TILESET_FILE_NAME = './assets/tileset.png';
@@ -12,12 +11,12 @@ const BG_FILE_NAME = './assets/bg.png';
 let SCREEN_WIDTH = window.innerWidth;
 let SCREEN_HEIGHT = window.innerHeight;
 // const BLACK_BAND_HEIGHT = Math.floor(SCREEN_HEIGHT * 0.2);
-const BLACK_BAND_HEIGHT = 0;
-const TILES_PER_COLUMN = 26;
+export const BLACK_BAND_HEIGHT = 0;
+export const TILES_PER_COLUMN = 26;
 export const TILE_SIZE = 64;
 const SPRITE_PER_COLUMN = 3;
 export const SPRITE_HEIGHT = 128;
-const SPRITE_WIDTH = 64;
+export const SPRITE_WIDTH = 64;
 export let playgroundWidth = SCREEN_WIDTH;
 export let playgroundHeight = SCREEN_HEIGHT - (BLACK_BAND_HEIGHT * 2);
 
@@ -27,6 +26,15 @@ canvas.width = SCREEN_WIDTH;
 canvas.height = SCREEN_HEIGHT;
 const context = canvas.getContext("2d");
 context.strokeStyle = Colors.WHITE;
+
+loadImages().then((loaded) => {
+  // worlds definition
+  const world = new World(loaded);
+  // start rendering
+  const renderer = createRenderer(world);
+  addListeners(world);
+  renderer();
+});
 
 // sprite sheet
 function loadImage(imageSrc) {
@@ -50,38 +58,6 @@ async function loadImages() {
   const [marioSprites, luigiSprite, tiles, background] = await loader;
   return { marioSprites, luigiSprite, tiles, background };
 }
-
-loadImages().then((loaded) => {
-  // character
-  const character = new Character(loaded.marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
-  // cloud generation
-  const clouds = initClouds();
-  // layers definition
-  const layers = createLayersStack([
-    {
-      render: (context) => drawBackground(context, loaded.background),
-      depth: 0,
-    },
-    {
-      render: (context) => drawGround(context, loaded.tiles),
-      depth: 60,
-    },
-    {
-      render: (context) => drawClouds(context, clouds, loaded.tiles),
-      depth: 70,
-    },
-    {
-      render: (context) => character.draw(context),
-      depth: 100,
-    },
-  ])
-  // start rendering
-  const renderer = createRenderer(layers);
-  addListeners(character, clouds);
-  renderer();
-});
-
-
 
 function loadTiles(tileset) {
   const tiles = [];
@@ -113,74 +89,19 @@ function loadSprites(spriteSheet) {
   return spritesContainer;
 }
 
-function initClouds() {
-  const maxClouds = 3;
-  const cloudsNumber = Math.floor(Math.random() * maxClouds) + 2;
-  const chunkWidth = Math.floor((playgroundWidth / cloudsNumber));
-  return new Array(cloudsNumber).fill(0)
-    .map((_, index) => ({
-      x: (Math.floor(Math.random() * chunkWidth)) + (chunkWidth * index),
-      y: (Math.floor(Math.random() * (playgroundHeight / 4))) + BLACK_BAND_HEIGHT,
-      type: 0,
-      size: Math.floor(Math.random() * 2) + 2,
-      disabled: false
-    }));
-}
-
-function createRenderer(layers) {
+function createRenderer(world) {
   function renderFrame() {
     context.clearRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-    layers.render(context);
+    world.render(context);
 
     requestAnimationFrame(renderFrame);
   }
   return renderFrame;
 }
 
-function drawBackground(context, background) {
-  // sky
-  context.fillStyle = Colors.SKY;
-  context.fillRect(0, BLACK_BAND_HEIGHT, playgroundWidth, playgroundHeight);
-  // background
-  const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - background.height;
-  const numBGRepeat = Math.floor(playgroundWidth / background.width) + 1;
-  for (let i = 0; i < numBGRepeat; i++) {
-    context.drawImage(background, i * background.width, y);
-  }
-}
+function addListeners(world) {
+  const { character, clouds } = world;
 
-function drawGround(context, tiles) {
-  const y = BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2);
-  const numTiles = Math.floor(playgroundWidth / TILE_SIZE) + 1;
-  for (let i = 0; i < numTiles; i++) {
-    tiles[Tiles.GRASS_TILE].draw(context, i * TILE_SIZE, y);
-    tiles[Tiles.GROUND_TILE].draw(context, i * TILE_SIZE, y + TILE_SIZE);
-  }
-}
-
-function drawClouds(context, clouds, tiles) {
-  clouds.forEach((cloud) => {
-    if (!cloud.disabled) {
-      const now = new Date().getTime();
-      tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x, cloud.y);
-      if (cloud.size > 2)
-        tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
-      if (cloud.size > 2)
-        tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + (TILE_SIZE * 2), cloud.y);
-      else
-        tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
-      if (!cloud.lastTypeChange)
-        cloud.lastTypeChange = now;
-      if (now - cloud.lastTypeChange > 400) {
-        cloud.type++;
-        cloud.type = cloud.type % 3;
-        cloud.lastTypeChange = now;
-      }
-    }
-  });
-}
-
-function addListeners(character, clouds) {
   document.addEventListener('keydown', (e) => {
     switch (e.code) {
       case "ArrowRight":
