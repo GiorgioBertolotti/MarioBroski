@@ -12,6 +12,7 @@ export default class Character {
     this.speed = 0;
     this.acceleration = 0;
     this.verticalSpeed = 0;
+    this.isJumping = false;
     this.prevSprite = Sprites.IDLE_R;
   }
 
@@ -47,8 +48,8 @@ export default class Character {
     // vertical axis
     if (this.verticalSpeed !== 0) {
       this.y -= this.verticalSpeed;
-      this.verticalSpeed -= 0.2;
     } 
+    this.verticalSpeed -= 0.2;
 
     const gridPos = {
       x: Math.floor(this.x / TILE_SIZE),
@@ -65,23 +66,27 @@ export default class Character {
     function checkCollisions(collisionX) {
       // check the collision in the directions of the character (it consider only the block on the collisionX)
       if(self.world.getCell(collisionX, gridPos.y)) {
-        self.x = (collisionX - direction) * TILE_SIZE - (CHARACTER_WIDHT * direction);
+        self.x = prevX;
+        self.acceleration = self.speed = 0;
+        return;
       }
       let collisionY = gridPos.y;
       if(self.world.getCell(collisionX, collisionY)) {
         self.y = playgroundHeight - ((collisionY - verticalDirection) * TILE_SIZE - (CHARACTER_HEIGHT * verticalDirection));
         self.verticalSpeed = 0;
+        self.isJumping = false;
       } else {
         collisionY += verticalDirection;
         if(self.world.getCell(collisionX, collisionY)) {
           self.y = playgroundHeight - ((collisionY - verticalDirection) * TILE_SIZE - (CHARACTER_HEIGHT * verticalDirection));
           self.verticalSpeed = 0;
+          self.isJumping = false;
         }
       }
     }
 
     checkCollisions(gridPos.x);
-    if ((this.x + CHARACTER_WIDHT) / TILE_SIZE > gridPos.x) {  // controllo sbagliato: direzione
+    if ((this.x + CHARACTER_WIDHT) / TILE_SIZE !== gridPos.x) {
       // mario invade il prossimo cubo
       checkCollisions(gridPos.x + direction);
     }
@@ -89,7 +94,7 @@ export default class Character {
     // new sprite recalculation
     let sprite = this.prevSprite;
     const now = new Date().getTime();
-    if (this.y < this.startY) {
+    if (this.isJumping) {
       // jumping
       if (this.direction) {
         if (this.direction === Directions.RIGHT)
@@ -171,18 +176,12 @@ export default class Character {
     this.acceleration = 0;
   }
 
-  stop() {
-    this.acceleration = 0;
-    this.speed = 0;
-  }
-
-  stopVertical() {
-    this.verticalSpeed = 0;
-  }
-
   jump() {
-    if (this.verticalSpeed === 0) {
+    if (this.isJumping)
+      return;
+    if (this.verticalSpeed <= 0 && this.verticalSpeed >= -0.2) {
       this.verticalSpeed = 6;
+      this.isJumping = true;
     }
   }
 
