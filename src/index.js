@@ -55,8 +55,8 @@ async function loadImages() {
     loadImage(TILESET_FILE_NAME).then(loadTiles),
     loadImage(BG_FILE_NAME)
   ]);
-  const [marioSprites, luigiSprite, tiles, background] = await loader;
-  return { marioSprites, luigiSprite, tiles, background };
+  const [marioSprite, luigiSprite, tiles, background] = await loader;
+  return { marioSprite, luigiSprite, tiles, background };
 }
 
 function loadTiles(tileset) {
