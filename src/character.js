@@ -2,12 +2,13 @@ import { Sprites, rightSprites } from "./sprites.js";
 import { TILE_SIZE, playgroundWidth, playgroundHeight, SPRITE_HEIGHT, SPRITE_WIDTH } from "./index.js";
 
 export default class Character {
-  constructor(spriteSheet, x, y) {
+  constructor(spriteSheet, world) {
     this.spriteSheet = spriteSheet;
-    this.x = x;
-    this.y = y;
-    this.startX = x;
-    this.startY = y;
+    this.world = world;
+    this.x = 20;
+    this.y = 100;
+    this.startX = this.x;
+    this.startY = this.y;
     this.speed = 0;
     this.acceleration = 0;
     this.verticalSpeed = 0;
@@ -47,13 +48,44 @@ export default class Character {
     if (this.verticalSpeed !== 0) {
       this.y -= this.verticalSpeed;
       this.verticalSpeed -= 0.2;
-    } else {
-      this.y += 0.2;
+    } 
+
+    const gridPos = {
+      x: Math.floor(this.x / TILE_SIZE),
+      y: Math.floor((playgroundHeight - this.y) / TILE_SIZE) - 1,
+    };
+    const CHARACTER_WIDHT  = 50; // TEMP
+    const CHARACTER_HEIGHT = TILE_SIZE * 2; // TEMP
+
+    // collision detection
+    const direction = Math.sign(this.speed);
+    const verticalDirection = Math.sign(this.verticalSpeed);
+    const self = this; // workaround for avoid javascript "this" scoping in internal function
+
+    function checkCollisions(collisionX) {
+      // check the collision in the directions of the character (it consider only the block on the collisionX)
+      if(self.world.getCell(collisionX, gridPos.y)) {
+        self.x = (collisionX - direction) * TILE_SIZE - (CHARACTER_WIDHT * direction);
+      }
+      let collisionY = gridPos.y;
+      if(self.world.getCell(collisionX, collisionY)) {
+        self.y = playgroundHeight - ((collisionY - verticalDirection) * TILE_SIZE - (CHARACTER_HEIGHT * verticalDirection));
+        self.verticalSpeed = 0;
+      } else {
+        collisionY += verticalDirection;
+        if(self.world.getCell(collisionX, collisionY)) {
+          self.y = playgroundHeight - ((collisionY - verticalDirection) * TILE_SIZE - (CHARACTER_HEIGHT * verticalDirection));
+          self.verticalSpeed = 0;
+        }
+      }
     }
-    if (this.y > this.startY) {
-      this.y = this.startY;
-      this.verticalSpeed = 0;
+
+    checkCollisions(gridPos.x);
+    if ((this.x + CHARACTER_WIDHT) / TILE_SIZE > gridPos.x) {  // controllo sbagliato: direzione
+      // mario invade il prossimo cubo
+      checkCollisions(gridPos.x + direction);
     }
+    
     // new sprite recalculation
     let sprite = this.prevSprite;
     const now = new Date().getTime();

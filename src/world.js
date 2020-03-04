@@ -12,7 +12,7 @@ class World {
       new Array(this.length).fill(BLOCKS.GRASS),
     ];
     // character
-    this.character = new Character(resources.marioSprites, 20, BLACK_BAND_HEIGHT + playgroundHeight - (TILE_SIZE * 2) - SPRITE_HEIGHT);
+    this.character = new Character(resources.marioSprite, this);
     // cloud generation
     this.clouds = initClouds(this.length * TILE_SIZE);
     // layers definition
@@ -38,6 +38,19 @@ class World {
 
   render(context) {
     this.layers.render(context);
+  }
+
+  getCell(x, y) {
+    if (!(y in this.grid))
+      return undefined;
+
+    const row = this.grid[y];
+    if (x in row) {
+      return row[x];
+    } else {
+      return undefined;
+    }
+
   }
 
   drawBackground(context, background) {
