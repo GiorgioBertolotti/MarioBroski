@@ -10,6 +10,12 @@ class World {
     this.grid = [
       new Array(this.length).fill(BLOCKS.DIRT),
       new Array(this.length).fill(BLOCKS.GRASS),
+      new Array(3).fill(BLOCKS.DIRT).concat(new Array(3).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
+      new Array(2).fill(BLOCKS.DIRT).concat(new Array(3).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
+      new Array(this.length).fill(null),
+      new Array(this.length).fill(null),
+      new Array(1).fill(BLOCKS.DIRT).concat(new Array(99).fill(null)),
+      new Array(6).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(93).fill(null))),
     ];
     // character
     this.character = new Character(resources.marioSprite, this);
@@ -71,7 +77,8 @@ class World {
       const row = this.grid[r];
       for (let c = 0; c < row.length; c++) {
         const cell = row[c];
-        tiles[cell.tile].draw(context, c * TILE_SIZE, y - ((r + 1) * TILE_SIZE));
+        if (cell)
+          tiles[cell.tile].draw(context, c * TILE_SIZE, y - ((r + 1) * TILE_SIZE));
       }
     }
   }

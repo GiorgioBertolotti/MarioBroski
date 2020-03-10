@@ -21,6 +21,8 @@ export default class Character {
   }
 
   draw(context) {
+    const prevX = this.x, prevY = this.y;
+
     // speed recalculation
     if (this.acceleration !== 0) {
       this.speed += this.acceleration;
@@ -35,62 +37,93 @@ export default class Character {
     if (Math.abs(this.speed) < 0.1) {
       this.speed = 0;
     }
+
     // position recalculation
-    const prevX = this.x;
+    let futureX = this.x, futureY = this.y;
     // horizontal axis
     if (this.speed !== 0) {
-      this.x += this.speed;
-      if (this.x < 0)
-        this.x = 0;
-      if (this.x > playgroundWidth - SPRITE_WIDTH)
-        this.x = playgroundWidth - SPRITE_WIDTH;
+      futureX += this.speed;
+      if (futureX < 0)
+        futureX = 0;
+      if (futureX > playgroundWidth - SPRITE_WIDTH)
+        futureX = playgroundWidth - SPRITE_WIDTH;
     }
     // vertical axis
     if (this.verticalSpeed !== 0) {
-      this.y -= this.verticalSpeed;
-    } 
+      futureY -= this.verticalSpeed;
+    }
     this.verticalSpeed -= 0.2;
 
     const gridPos = {
       x: Math.floor(this.x / TILE_SIZE),
-      y: Math.floor((playgroundHeight - this.y) / TILE_SIZE) - 1,
+      y: Math.floor((playgroundHeight - this.y) / TILE_SIZE),
     };
-    const CHARACTER_WIDHT  = 50; // TEMP
-    const CHARACTER_HEIGHT = TILE_SIZE * 2; // TEMP
+    const futureGridPos = {
+      x: Math.floor(futureX / TILE_SIZE),
+      y: Math.floor((playgroundHeight - futureY) / TILE_SIZE),
+    };
 
     // collision detection
     const direction = Math.sign(this.speed);
     const verticalDirection = Math.sign(this.verticalSpeed);
-    const self = this; // workaround for avoid javascript "this" scoping in internal function
+    const spriteWidthInBlocks = Math.floor(SPRITE_WIDTH / TILE_SIZE);
 
-    function checkCollisions(collisionX) {
-      // check the collision in the directions of the character (it consider only the block on the collisionX)
-      if(self.world.getCell(collisionX, gridPos.y)) {
-        self.x = prevX;
-        self.acceleration = self.speed = 0;
-        return;
-      }
-      let collisionY = gridPos.y;
-      if(self.world.getCell(collisionX, collisionY)) {
-        self.y = playgroundHeight - ((collisionY - verticalDirection) * TILE_SIZE - (CHARACTER_HEIGHT * verticalDirection));
-        self.verticalSpeed = 0;
-        self.isJumping = false;
+    // vertical collision detection
+    if (verticalDirection > 0) {
+      // jumping
+      const alreadyCollidingHead = !!this.world.getCell(gridPos.x, gridPos.y) || !!this.world.getCell(gridPos.x + spriteWidthInBlocks, gridPos.y);
+      if (alreadyCollidingHead) {
+        this.y = playgroundHeight - ((gridPos.y) * TILE_SIZE);
+        this.verticalSpeed = 0;
       } else {
-        collisionY += verticalDirection;
-        if(self.world.getCell(collisionX, collisionY)) {
-          self.y = playgroundHeight - ((collisionY - verticalDirection) * TILE_SIZE - (CHARACTER_HEIGHT * verticalDirection));
-          self.verticalSpeed = 0;
-          self.isJumping = false;
+        const yStart = futureGridPos.y;
+        const collidesHead = !!this.world.getCell(gridPos.x, yStart) || !!this.world.getCell(gridPos.x + spriteWidthInBlocks, yStart);
+        if (collidesHead) {
+          this.y = playgroundHeight - ((gridPos.y + 1) * TILE_SIZE);
+          this.verticalSpeed = 0;
+        } else {
+          this.y = futureY;
         }
       }
+    } else if (verticalDirection < 0) {
+      // falling
+      const yEnd = futureGridPos.y - Math.floor(SPRITE_HEIGHT / TILE_SIZE);
+      const collidesFeet = !!this.world.getCell(gridPos.x, yEnd) || !!this.world.getCell(gridPos.x + spriteWidthInBlocks, yEnd);
+      if (collidesFeet) {
+        this.y = playgroundHeight - ((futureGridPos.y + 1) * TILE_SIZE);
+        this.verticalSpeed = 0;
+        this.isJumping = false;
+      } else {
+        this.y = futureY;
+      }
     }
 
-    checkCollisions(gridPos.x);
-    if ((this.x + CHARACTER_WIDHT) / TILE_SIZE !== gridPos.x) {
-      // mario invade il prossimo cubo
-      checkCollisions(gridPos.x + direction);
+    futureGridPos.y = Math.floor((playgroundHeight - this.y) / TILE_SIZE);
+    // horizontal collision detection
+    if (direction > 0) {
+      // moving in right direction
+      const xEnd = futureGridPos.x + Math.floor(SPRITE_WIDTH / TILE_SIZE);
+      const collidesHead = !!this.world.getCell(xEnd, futureGridPos.y - 1);
+      const collidesLegs = !!this.world.getCell(xEnd, futureGridPos.y - 2);
+      if (collidesHead || collidesLegs) {
+        this.x = (futureGridPos.x * TILE_SIZE) - 1;
+        this.acceleration = this.speed = 0;
+      } else {
+        this.x = futureX;
+      }
+    } else if (direction < 0) {
+      // moving in left direction
+      const xStart = futureGridPos.x;
+      const collidesHead = !!this.world.getCell(xStart, futureGridPos.y - 1);
+      const collidesLegs = !!this.world.getCell(xStart, futureGridPos.y - 2);
+      if (collidesHead || collidesLegs) {
+        this.x = (gridPos.x * TILE_SIZE) + 1;
+        this.acceleration = this.speed = 0;
+      } else {
+        this.x = futureX;
+      }
     }
-    
+
     // new sprite recalculation
     let sprite = this.prevSprite;
     const now = new Date().getTime();
