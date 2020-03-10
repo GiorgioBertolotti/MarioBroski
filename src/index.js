@@ -50,8 +50,8 @@ function loadImage(imageSrc) {
 
 async function loadImages() {
   const loader = Promise.all([
-    loadImage(MARIO_SPRITESHEET_FILE_NAME).then(loadSprites),
-    loadImage(LUIGI_SPRITESHEET_FILE_NAME).then(loadSprites),
+    loadImage(MARIO_SPRITESHEET_FILE_NAME).then(spriteSheet => loadSprites(spriteSheet, 108)),
+    loadImage(LUIGI_SPRITESHEET_FILE_NAME).then(spriteSheet => loadSprites(spriteSheet, 124)),
     loadImage(TILESET_FILE_NAME).then(loadTiles),
     loadImage(BG_FILE_NAME)
   ]);
@@ -74,13 +74,14 @@ function loadTiles(tileset) {
   return tiles;
 }
 
-function loadSprites(spriteSheet) {
+function loadSprites(spriteSheet, height) {
   const spritesContainer = [];
   const w = spriteSheet.width;
   const h = spriteSheet.height;
   for (let x = 0; x < w - 4; x += 4) {
     for (let y = 0; y < h - 4; y += 4) {
-      const sprite = new Sprite(spriteSheet, x + 4, y + 4)
+      const sprite = new Sprite(spriteSheet, x + 4, y + 4);
+      sprite.height = height;
       spritesContainer.push(sprite);
       y += SPRITE_HEIGHT;
     }

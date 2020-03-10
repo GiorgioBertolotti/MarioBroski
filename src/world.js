@@ -10,12 +10,12 @@ class World {
     this.grid = [
       new Array(this.length).fill(BLOCKS.DIRT),
       new Array(this.length).fill(BLOCKS.GRASS),
-      new Array(3).fill(BLOCKS.DIRT).concat(new Array(3).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
-      new Array(2).fill(BLOCKS.DIRT).concat(new Array(3).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
+      new Array(4).fill(BLOCKS.DIRT).concat(new Array(3).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
+      new Array(3).fill(BLOCKS.DIRT).concat(new Array(5).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
       new Array(this.length).fill(null),
       new Array(this.length).fill(null),
-      new Array(1).fill(BLOCKS.DIRT).concat(new Array(99).fill(null)),
-      new Array(6).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(93).fill(null))),
+      new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(99).fill(null))),
+      new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(93).fill(null))),
     ];
     // character
     this.character = new Character(resources.marioSprite, this);
@@ -38,6 +38,11 @@ class World {
       {
         render: (context) => this.character.draw(context),
         depth: 100,
+      },
+      // Uncomment for debugging world grid lines
+      {
+        render: (context) => this.drawGridLines(context),
+        depth: 110,
       },
     ])
   }
@@ -69,6 +74,20 @@ class World {
     for (let i = 0; i < numBGRepeat; i++) {
       context.drawImage(background, i * background.width, y);
     }
+  }
+
+  drawGridLines(context) {
+    context.beginPath();
+    for (var y = playgroundHeight; y >= 0; y -= TILE_SIZE) {
+      context.moveTo(0, y);
+      context.lineTo(playgroundWidth, y);
+    }
+    for (var x = 0; x <= playgroundWidth; x += TILE_SIZE) {
+      context.moveTo(x, 0);
+      context.lineTo(x, playgroundHeight);
+    }
+    context.strokeStyle = Colors.WHITE;
+    context.stroke();
   }
 
   drawGrid(context, tiles) {

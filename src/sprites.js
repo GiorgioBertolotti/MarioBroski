@@ -1,5 +1,3 @@
-import { playgroundWidth } from "./index.js";
-
 export default class Sprite {
   constructor(image, x, y) {
     this.image = image;
@@ -7,14 +5,12 @@ export default class Sprite {
     this.y = y;
     this.height = 128;
     this.width = 64;
+    this.defaultHeight = 128;
+    this.defaultWidth = 64;
   }
 
   draw(context, x, y) {
-    context.drawImage(this.image, this.x, this.y, this.width, this.height, Math.floor(x), Math.floor(y), this.width, this.height);
-    if (x + this.width > playgroundWidth) {
-      const halfSpriteSize = x + this.width - playgroundWidth;
-      context.drawImage(this.image, this.x + this.width - halfSpriteSize, this.y, halfSpriteSize, this.height, 0, Math.floor(y), Math.floor(halfSpriteSize), this.height);
-    }
+    context.drawImage(this.image, this.x + (this.defaultWidth - this.width), this.y + (this.defaultHeight - this.height), this.width, this.height, Math.floor(x), Math.floor(y), this.width, this.height);
   }
 }
 
