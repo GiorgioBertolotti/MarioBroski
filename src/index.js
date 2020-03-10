@@ -49,14 +49,15 @@ function loadImage(imageSrc) {
 }
 
 async function loadImages() {
+  const characterSpriteSheet = MARIO_SPRITESHEET_FILE_NAME;
+  const characterSpriteHeight = 108;
   const loader = Promise.all([
-    loadImage(MARIO_SPRITESHEET_FILE_NAME).then(spriteSheet => loadSprites(spriteSheet, 108)),
-    loadImage(LUIGI_SPRITESHEET_FILE_NAME).then(spriteSheet => loadSprites(spriteSheet, 124)),
+    loadImage(characterSpriteSheet).then(spriteSheet => loadSprites(spriteSheet, characterSpriteHeight)),
     loadImage(TILESET_FILE_NAME).then(loadTiles),
     loadImage(BG_FILE_NAME)
   ]);
-  const [marioSprite, luigiSprite, tiles, background] = await loader;
-  return { marioSprite, luigiSprite, tiles, background };
+  const [marioSprite, tiles, background] = await loader;
+  return { marioSprite, tiles, background };
 }
 
 function loadTiles(tileset) {

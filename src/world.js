@@ -3,6 +3,7 @@ import { Tiles } from './tiles.js';
 import Character from './character.js';
 import { Colors } from './colors.js';
 import { TILE_SIZE, SPRITE_HEIGHT, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
+import Camera from './camera.js';
 
 class World {
   constructor(resources) {
@@ -21,6 +22,7 @@ class World {
     this.character = new Character(resources.marioSprite, this);
     // cloud generation
     this.clouds = initClouds(this.length * TILE_SIZE);
+    this.camera = new Camera(0, this, playgroundWidth);
     // layers definition
     this.layers = createLayersStack([
       {
@@ -40,10 +42,10 @@ class World {
         depth: 100,
       },
       // Uncomment for debugging world grid lines
-      {
-        render: (context) => this.drawGridLines(context),
-        depth: 110,
-      },
+      // {
+      //   render: (context) => this.drawGridLines(context),
+      //   depth: 110,
+      // },
     ])
   }
 
@@ -96,8 +98,9 @@ class World {
       const row = this.grid[r];
       for (let c = 0; c < row.length; c++) {
         const cell = row[c];
+        const x = c * TILE_SIZE - this.camera.offsetX;
         if (cell)
-          tiles[cell.tile].draw(context, c * TILE_SIZE, y - ((r + 1) * TILE_SIZE));
+          tiles[cell.tile].draw(context, x, y - ((r + 1) * TILE_SIZE));
       }
     }
   }
@@ -105,14 +108,15 @@ class World {
   drawClouds(context, tiles) {
     this.clouds.forEach((cloud) => {
       if (!cloud.disabled) {
+        const cloudX = cloud.x - this.camera.offsetX;
         const now = new Date().getTime();
-        tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x, cloud.y);
+        tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX, cloud.y);
         if (cloud.size > 2)
-          tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
+          tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + TILE_SIZE, cloud.y);
         if (cloud.size > 2)
-          tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + (TILE_SIZE * 2), cloud.y);
+          tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + (TILE_SIZE * 2), cloud.y);
         else
-          tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloud.x + TILE_SIZE, cloud.y);
+          tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + TILE_SIZE, cloud.y);
         if (!cloud.lastTypeChange)
           cloud.lastTypeChange = now;
         if (now - cloud.lastTypeChange > 400) {

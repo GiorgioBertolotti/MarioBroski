@@ -12,6 +12,7 @@ export default class Character {
     this.y = 100;
     this.startX = this.x;
     this.startY = this.y;
+    this.screenX = this.x;
     this.speed = 0;
     this.acceleration = 0;
     this.verticalSpeed = 0;
@@ -186,10 +187,15 @@ export default class Character {
         }
       }
     }
+
+    this.world.camera.update(this);
+    // update the screen position
+    this.screenX = this.x - this.world.camera.offsetX;
+
     // draw new position
     if (this.spriteSheet[sprite]) {
       this.prevSprite = sprite;
-      this.spriteSheet[sprite].draw(context, this.x, this.y);
+      this.spriteSheet[sprite].draw(context, this.screenX, this.y);
     }
   }
 
