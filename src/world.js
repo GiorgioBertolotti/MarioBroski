@@ -42,10 +42,10 @@ class World {
         depth: 100,
       },
       // Uncomment for debugging world grid lines
-      // {
-      //   render: (context) => this.drawGridLines(context),
-      //   depth: 110,
-      // },
+      {
+        render: (context) => this.drawGridLines(context),
+        depth: 110,
+      },
     ])
   }
 
@@ -85,8 +85,9 @@ class World {
       context.lineTo(playgroundWidth, y);
     }
     for (var x = 0; x <= playgroundWidth; x += TILE_SIZE) {
-      context.moveTo(x, 0);
-      context.lineTo(x, playgroundHeight);
+      const screenX = x - (this.camera.offsetX % (playgroundWidth / 2));
+      context.moveTo(screenX, 0);
+      context.lineTo(screenX, playgroundHeight);
     }
     context.strokeStyle = Colors.WHITE;
     context.stroke();
