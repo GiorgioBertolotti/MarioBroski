@@ -48,18 +48,18 @@ function loadImage(imageSrc) {
   return promise;
 }
 
-const MARIO_OPTION = {
-  height: 108,
-  characterSpriteSheet: MARIO_SPRITESHEET_FILE_NAME,
-}
-
-const LUIGI_OPTION = {
-  height: 124,
-  characterSpriteSheet: LUIGI_SPRITESHEET_FILE_NAME,
-}
-
 async function loadImages() {
-  const { characterSpriteSheet, height} = MARIO_OPTION;
+  const MARIO_OPTION = {
+    height: 108,
+    characterSpriteSheet: MARIO_SPRITESHEET_FILE_NAME,
+  }
+  
+  const LUIGI_OPTION = {
+    height: 124,
+    characterSpriteSheet: LUIGI_SPRITESHEET_FILE_NAME,
+  }
+  
+  const { characterSpriteSheet, height} = LUIGI_OPTION;
   const loader = Promise.all([
     loadImage(characterSpriteSheet).then(spriteSheet => loadSprites(spriteSheet, height)),
     loadImage(TILESET_FILE_NAME).then(loadTiles),
