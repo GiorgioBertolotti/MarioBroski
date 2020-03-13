@@ -49,8 +49,8 @@ export default class Character {
       futureX += this.speed;
       if (futureX < 0)
         futureX = 0;
-      if (futureX > this.world.camera.worldLen)
-        futureX = this.world.camera.worldLen;
+      if (futureX + this.spriteWidth > (this.world.length * TILE_SIZE))
+        futureX = (this.world.length * TILE_SIZE) - this.spriteWidth;
     }
     // vertical axis
     if (this.verticalSpeed !== 0) {
