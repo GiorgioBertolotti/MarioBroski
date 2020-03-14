@@ -10,6 +10,6 @@ export default class Camera {
     update(character) {
         const clamp = (a, min, max) => Math.min(Math.max(a, min), max);
         // mario sta in centro allo schermo tranne se si trova nella prima metà inferiore
-        this.offsetX = clamp(character.x - this.size / 2, 0, (this.world.length * TILE_SIZE) - this.size);
+        this.offsetX = Math.floor(clamp(character.x - this.size / 2, 0, (this.world.length * TILE_SIZE) - this.size));
     }
 }
