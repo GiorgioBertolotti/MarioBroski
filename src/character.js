@@ -2,7 +2,7 @@ import { Sprites, rightSprites } from "./sprites.js";
 import { TILE_SIZE, playgroundWidth, playgroundHeight } from "./index.js";
 
 export default class Character {
-  constructor(spriteSheet, world) {
+  constructor(spriteSheet, world, onCollision) {
     this.spriteSheet = spriteSheet;
     this.spriteWidth = this.spriteSheet[0].width;
     this.spriteHeight = this.spriteSheet[0].height;
@@ -18,6 +18,7 @@ export default class Character {
     this.verticalSpeed = 0;
     this.isJumping = false;
     this.prevSprite = Sprites.IDLE_R;
+    this.onCollision = onCollision;
   }
 
   setSpriteSheet(spriteSheet) {
@@ -119,21 +120,25 @@ export default class Character {
     const occupiedBlocksHorizontally = this.x % TILE_SIZE === 0 ? Math.floor(this.spriteWidth / TILE_SIZE) : Math.floor(this.spriteWidth / TILE_SIZE) + 1;
     const direction = Math.sign(this.speed);
     const spriteWidthInBlocks = Math.floor(this.spriteWidth / TILE_SIZE) + (this.spriteWidth % TILE_SIZE > 0 ? 1 : 0);
-    const occupiedBlocksVertically = (playgroundHeight - this.y - this.spriteHeight) % TILE_SIZE <= this.spriteSpace ? spriteHeightInBlocks : spriteHeightInBlocks + 1
-    
+    const occupiedBlocksVertically = (playgroundHeight - this.y - this.spriteHeight) % TILE_SIZE <= this.spriteSpace ? spriteHeightInBlocks : spriteHeightInBlocks + 1;
+
+    const collisionCheck = (numBlocks, mapFunction) => new Array(numBlocks).fill(0).map(mapFunction).filter(block => !!block);
+
     // vertical collision detection
     if (verticalDirection > 0) {
       // jumping
-      const alreadyCollidingHead = new Array(occupiedBlocksHorizontally).fill(0).some((_, index) => !!this.world.getCell(gridPos.x + index, gridPos.y));
-      if (alreadyCollidingHead) {
+      const alreadyCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, (_, index) => this.world.getCell(gridPos.x + index, gridPos.y));
+      if (alreadyCollidingBlocks.length > 0) {
         this.y = playgroundHeight - ((gridPos.y) * TILE_SIZE);
         this.verticalSpeed = 0;
+        this.onCollision(Directions.TOP, alreadyCollidingBlocks);
       } else {
         const yStart = futureGridPos.y;
-        const collidesHead = new Array(occupiedBlocksHorizontally).fill(0).some((_, index) => !!this.world.getCell(gridPos.x + index, yStart));
-        if (collidesHead) {
+        const headCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, (_, index) => this.world.getCell(gridPos.x + index, yStart));
+        if (headCollidingBlocks.length > 0) {
           this.y = playgroundHeight - ((gridPos.y + 1) * TILE_SIZE) + 1;
           this.verticalSpeed = 0;
+          this.onCollision(Directions.TOP, headCollidingBlocks);
         } else {
           this.y = futureY;
         }
@@ -141,26 +146,28 @@ export default class Character {
     } else if (verticalDirection < 0) {
       // falling
       const yEnd = futureGridPos.y - spriteHeightInBlocks;
-      const collidesFeet = new Array(occupiedBlocksHorizontally).fill(0).some((_, index) => !!this.world.getCell(gridPos.x + index, yEnd));
-      if (collidesFeet) {
+      const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, (_, index) => this.world.getCell(gridPos.x + index, yEnd));
+      if (feetCollidingBlocks.length > 0) {
         this.y = playgroundHeight - ((yEnd + 1) * TILE_SIZE) - this.spriteHeight;
         this.verticalSpeed = 0;
         this.isJumping = false;
+        this.onCollision(Directions.BOTTOM, feetCollidingBlocks);
       } else {
         this.y = futureY;
       }
     }
-    
+
     futureGridPos.y = Math.floor((playgroundHeight - this.y) / TILE_SIZE);
     // horizontal collision detection
-    if(direction !== 0 ){
+    if (direction !== 0) {
       // moving in direction
       const isRight = direction > 0;
-      const xEnd = futureGridPos.x + (isRight ? spriteWidthInBlocks : 0);
-      const collides = new Array(occupiedBlocksVertically).fill(0).some((_, index) => !!this.world.getCell(xEnd, gridPos.y - index));
-      if (collides) {
-        this.x = ((xEnd - direction) * TILE_SIZE) - direction;
+      const xCheck = futureGridPos.x + (isRight ? spriteWidthInBlocks : 0);
+      const collidingBlocks = collisionCheck(occupiedBlocksVertically, (_, index) => this.world.getCell(xCheck, gridPos.y - index));
+      if (collidingBlocks.length > 0) {
+        this.x = ((xCheck - direction) * TILE_SIZE) - direction;
         this.speed = 0;
+        this.onCollision(direction, collidingBlocks);
       } else {
         this.x = futureX;
       }
@@ -225,12 +232,14 @@ export default class Character {
         }
       }
     }
-  return sprite;
+    return sprite;
   }
 
 }
 
-const Directions = {
+export const Directions = {
   RIGHT: 1,
   LEFT: -1,
+  TOP: 2,
+  BOTTOM: -2,
 }

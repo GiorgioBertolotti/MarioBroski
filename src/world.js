@@ -19,7 +19,7 @@ class World {
       new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(93).fill(null))),
     ];
     // character
-    this.character = new Character(resources.marioSprite, this);
+    this.character = new Character(resources.marioSprite, this, this.onCollision);
     // cloud generation
     this.clouds = initClouds(this.length * TILE_SIZE);
     this.camera = new Camera(0, this, playgroundWidth);
@@ -47,6 +47,10 @@ class World {
         depth: 110,
       },
     ])
+  }
+
+  onCollision(direction, collidingBlocks) {
+    console.log(direction, collidingBlocks);
   }
 
   render(context) {
