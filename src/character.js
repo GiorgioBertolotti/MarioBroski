@@ -113,7 +113,7 @@ export default class Character {
       const collides = new Array(occupiedBlocksVertically).fill(0).map((_, index) => !!this.world.getCell(xEnd, gridPos.y - index));
       if (collides.includes(true)) {
         this.x = ((xEnd - 1) * TILE_SIZE) - 1;
-        this.acceleration = this.speed = 0;
+        this.speed = 0;
       } else {
         this.x = futureX;
       }
@@ -123,7 +123,7 @@ export default class Character {
       const collides = new Array(occupiedBlocksVertically).fill(0).map((_, index) => !!this.world.getCell(xStart, gridPos.y - index));
       if (collides.includes(true)) {
         this.x = ((xStart + 1) * TILE_SIZE) + 1;
-        this.acceleration = this.speed = 0;
+        this.speed = 0;
       } else {
         this.x = futureX;
       }
