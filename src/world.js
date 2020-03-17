@@ -2,25 +2,26 @@ import { createLayersStack } from './layer.js';
 import { Tiles } from './tiles.js';
 import Character from './character.js';
 import { Colors } from './colors.js';
-import { TILE_SIZE, SPRITE_HEIGHT, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
+import { TILE_SIZE, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
 import Camera from './camera.js';
 import DebugGrid from './debug_grid.js';
 
 class World {
   constructor(resources) {
     this.length = 100;
+    // this.grid = require('../assets/world.json');
     this.grid = [
-      new Array(this.length).fill(BLOCKS.DIRT),
+      new Array(this.length).fill(BLOCKS.GROUND),
       new Array(this.length).fill(BLOCKS.GRASS),
-      new Array(4).fill(BLOCKS.DIRT).concat(new Array(3).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
-      new Array(3).fill(BLOCKS.DIRT).concat(new Array(5).fill(null).concat(new Array(4).fill(BLOCKS.DIRT).concat(new Array(90).fill(null)))),
+      [BLOCKS.HILL_START, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL_TOP_END].concat(new Array(3).fill(null).concat([BLOCKS.HILL_TOP_START, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL_END])),
+      [BLOCKS.HILL_TOP_START, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP_END].concat(new Array(5).fill(null).concat([BLOCKS.HILL_TOP_START, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP_END])),
       new Array(this.length).fill(null),
       new Array(this.length).fill(null),
-      new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(99).fill(null))),
-      new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(93).fill(null))),
+      new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.BRICK).concat(new Array(99).fill(null))),
+      new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.BRICK).concat(new Array(93).fill(null))),
     ];
     // character
-    this.character = new Character(resources.marioSprite, this);
+    this.character = new Character(resources.sprites, this);
     // cloud generation
     this.clouds = initClouds(this.length * TILE_SIZE);
     this.camera = new Camera(0, this, playgroundWidth);
@@ -103,13 +104,13 @@ class World {
       if (!cloud.disabled) {
         const cloudX = cloud.x - this.camera.offsetX;
         const now = new Date().getTime();
-        tiles[Tiles.CLOUD_START_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX, cloud.y);
+        tiles[Tiles.CLOUD_START + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX, cloud.y);
         if (cloud.size > 2)
-          tiles[Tiles.CLOUD_MIDDLE_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + TILE_SIZE, cloud.y);
+          tiles[Tiles.CLOUD_MIDDLE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + TILE_SIZE, cloud.y);
         if (cloud.size > 2)
-          tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + (TILE_SIZE * 2), cloud.y);
+          tiles[Tiles.CLOUD_END + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + (TILE_SIZE * 2), cloud.y);
         else
-          tiles[Tiles.CLOUD_END_TILE + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + TILE_SIZE, cloud.y);
+          tiles[Tiles.CLOUD_END + (cloud.type * TILES_PER_COLUMN)].draw(context, cloudX + TILE_SIZE, cloud.y);
         if (!cloud.lastTypeChange)
           cloud.lastTypeChange = now;
         if (now - cloud.lastTypeChange > 400) {
@@ -136,9 +137,10 @@ function initClouds(worldWidth) {
     }));
 }
 
-const BLOCKS = {
-  GRASS: { tile: Tiles.GRASS_TILE },
-  DIRT: { tile: Tiles.GROUND_TILE },
-}
+const BLOCKS = {};
+Object.keys(Tiles).forEach((key) => {
+  BLOCKS[key] = { tile: Tiles[key] };
+});
+console.log(BLOCKS)
 
 export default World;
