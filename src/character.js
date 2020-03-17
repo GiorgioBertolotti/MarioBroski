@@ -2,7 +2,7 @@ import { Sprites, rightSprites } from "./sprites.js";
 import { TILE_SIZE, playgroundWidth, playgroundHeight } from "./index.js";
 
 export default class Character {
-  constructor(spriteSheet, world, onCollision) {
+  constructor(spriteSheet, world) {
     this.spriteSheet = spriteSheet;
     this.spriteWidth = this.spriteSheet[0].width;
     this.spriteHeight = this.spriteSheet[0].height;
@@ -18,7 +18,6 @@ export default class Character {
     this.verticalSpeed = 0;
     this.isJumping = false;
     this.prevSprite = Sprites.IDLE_R;
-    this.onCollision = onCollision;
   }
 
   setSpriteSheet(spriteSheet) {
@@ -124,29 +123,29 @@ export default class Character {
 
     const collisionCheck = (numBlocks, coordFn) => new Array(numBlocks).fill(0)
       .map((_, i) => {
-        const {x, y} = coordFn(i);
+        const { x, y } = coordFn(i);
         const block = this.world.getCell(x, y);
-        if(!block) 
+        if (!block)
           return undefined;
-        return {block, x, y};
+        return { block, x, y };
       })
       .filter(block => !!block);
 
     // vertical collision detection
     if (verticalDirection > 0) {
       // jumping
-      const alreadyCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({x: gridPos.x + index, y: gridPos.y}));
+      const alreadyCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: gridPos.y }));
       if (alreadyCollidingBlocks.length > 0) {
         this.y = playgroundHeight - ((gridPos.y) * TILE_SIZE);
         this.verticalSpeed = 0;
-        this.onCollision(Directions.TOP, alreadyCollidingBlocks);
+        this.world.onCollision(Directions.TOP, alreadyCollidingBlocks);
       } else {
         const yStart = futureGridPos.y;
-        const headCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({x: gridPos.x + index, y: yStart}));
+        const headCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: yStart }));
         if (headCollidingBlocks.length > 0) {
           this.y = playgroundHeight - ((gridPos.y + 1) * TILE_SIZE) + 1;
           this.verticalSpeed = 0;
-          this.onCollision(Directions.TOP, headCollidingBlocks);
+          this.world.onCollision(Directions.TOP, headCollidingBlocks);
         } else {
           this.y = futureY;
         }
@@ -154,12 +153,12 @@ export default class Character {
     } else if (verticalDirection < 0) {
       // falling
       const yEnd = futureGridPos.y - spriteHeightInBlocks;
-      const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({x: gridPos.x + index, y: yEnd}));
+      const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: yEnd }));
       if (feetCollidingBlocks.length > 0) {
         this.y = playgroundHeight - ((yEnd + 1) * TILE_SIZE) - this.spriteHeight;
         this.verticalSpeed = 0;
         this.isJumping = false;
-        this.onCollision(Directions.BOTTOM, feetCollidingBlocks);
+        this.world.onCollision(Directions.BOTTOM, feetCollidingBlocks);
       } else {
         this.y = futureY;
       }
@@ -171,11 +170,11 @@ export default class Character {
       // moving in direction
       const isRight = direction > 0;
       const xCheck = futureGridPos.x + (isRight ? spriteWidthInBlocks : 0);
-      const collidingBlocks = collisionCheck(occupiedBlocksVertically, index => ({x: xCheck, y: gridPos.y - index}))
+      const collidingBlocks = collisionCheck(occupiedBlocksVertically, index => ({ x: xCheck, y: gridPos.y - index }))
       if (collidingBlocks.length > 0) {
         this.x = ((xCheck - direction) * TILE_SIZE) - direction;
         this.speed = 0;
-        this.onCollision(direction, collidingBlocks);
+        this.world.onCollision(direction, collidingBlocks);
       } else {
         this.x = futureX;
       }

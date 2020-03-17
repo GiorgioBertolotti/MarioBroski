@@ -4,6 +4,7 @@ import Character from './character.js';
 import { Colors } from './colors.js';
 import { TILE_SIZE, SPRITE_HEIGHT, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
 import Camera from './camera.js';
+import DebugGrid from './debug_grid.js';
 
 class World {
   constructor(resources) {
@@ -19,10 +20,12 @@ class World {
       new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.DIRT).concat(new Array(93).fill(null))),
     ];
     // character
-    this.character = new Character(resources.marioSprite, this, this.onCollision);
+    this.character = new Character(resources.marioSprite, this);
     // cloud generation
     this.clouds = initClouds(this.length * TILE_SIZE);
     this.camera = new Camera(0, this, playgroundWidth);
+    // debug grid
+    this.debugGrid = new DebugGrid(this.camera, Colors.WHITE);
     // layers definition
     this.layers = createLayersStack([
       {
@@ -41,16 +44,16 @@ class World {
         render: (context) => this.character.draw(context),
         depth: 100,
       },
-      // Uncomment for debugging world grid lines
       {
-        render: (context) => this.drawGridLines(context),
+        render: (context) => this.debugGrid.draw(context),
         depth: 110,
       },
     ])
   }
 
   onCollision(direction, collidingBlocks) {
-    console.log(direction, collidingBlocks);
+    //console.log(direction, collidingBlocks);
+    this.debugGrid.setCollisionBlocks(collidingBlocks);
   }
 
   render(context) {
@@ -80,21 +83,6 @@ class World {
     for (let i = 0; i < numBGRepeat; i++) {
       context.drawImage(background, i * background.width, y);
     }
-  }
-
-  drawGridLines(context) {
-    context.beginPath();
-    for (var y = playgroundHeight; y >= 0; y -= TILE_SIZE) {
-      context.moveTo(0, y);
-      context.lineTo(playgroundWidth, y);
-    }
-    for (var x = 0; x <= playgroundWidth; x += TILE_SIZE) {
-      const screenX = x - (this.camera.offsetX % (playgroundWidth / 2));
-      context.moveTo(screenX, 0);
-      context.lineTo(screenX, playgroundHeight);
-    }
-    context.strokeStyle = Colors.WHITE;
-    context.stroke();
   }
 
   drawGrid(context, tiles) {
