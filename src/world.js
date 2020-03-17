@@ -1,6 +1,6 @@
 import { createLayersStack } from './layer.js';
 import { Tiles } from './tiles.js';
-import Character from './character.js';
+import Character, { Directions } from './character.js';
 import { Colors } from './colors.js';
 import { TILE_SIZE, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
 import Camera from './camera.js';
@@ -55,6 +55,16 @@ class World {
   onCollision(direction, collidingBlocks) {
     //console.log(direction, collidingBlocks);
     this.debugGrid.setCollisionBlocks(collidingBlocks);
+
+    if(direction == Directions.TOP) {
+      for(const {block, x, y} of collidingBlocks) {
+        if(block.tile != Tiles.BRICK) {
+          continue;
+        }
+        // animations
+        delete this.grid[y][x];
+      }
+    }
   }
 
   render(context) {
@@ -141,6 +151,5 @@ const BLOCKS = {};
 Object.keys(Tiles).forEach((key) => {
   BLOCKS[key] = { tile: Tiles[key] };
 });
-console.log(BLOCKS)
 
 export default World;
