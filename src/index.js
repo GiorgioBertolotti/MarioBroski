@@ -59,7 +59,7 @@ async function loadImages() {
     characterSpriteSheet: LUIGI_SPRITESHEET_FILE_NAME,
   }
 
-  const { characterSpriteSheet, height } = MARIO_OPTION;
+  const { characterSpriteSheet, height } = LUIGI_OPTION;
   const loader = Promise.all([
     loadImage(characterSpriteSheet).then(spriteSheet => loadSprites(spriteSheet, height)),
     loadImage(TILESET_FILE_NAME).then(loadTiles),
