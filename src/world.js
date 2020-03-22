@@ -4,6 +4,7 @@ import Character, { Directions } from './character.js';
 import { Colors } from './colors.js';
 import { TILE_SIZE, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
 import Camera from './camera.js';
+import { defaultHandlers } from './block_handlers.js';
 import DebugGrid from './debug_grid.js';
 
 class World {
@@ -27,6 +28,8 @@ class World {
     this.camera = new Camera(0, this, playgroundWidth);
     // debug grid
     this.debugGrid = new DebugGrid(this.camera, Colors.WHITE);
+    //blocks event handler
+    this.blockHandler = defaultHandlers;
     // layers definition
     this.layers = createLayersStack([
       {
@@ -56,13 +59,10 @@ class World {
     //console.log(direction, collidingBlocks);
     this.debugGrid.setCollisionBlocks(collidingBlocks);
 
-    if(direction == Directions.TOP) {
-      for(const {block, x, y} of collidingBlocks) {
-        if(block.tile != Tiles.BRICK) {
-          continue;
-        }
-        // animations
-        delete this.grid[y][x];
+    for(const data  of collidingBlocks) {
+      const handler = this.blockHandler.get(direction, data.block.tile);
+      if(handler) {
+        handler(this, data);
       }
     }
   }
