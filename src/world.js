@@ -17,8 +17,8 @@ class World {
       [BLOCKS.HILL_TOP_START, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP_END].concat(new Array(5).fill(null).concat([BLOCKS.HILL_TOP_START, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP_END])),
       new Array(this.length).fill(null),
       new Array(this.length).fill(null),
-      new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.BRICK).concat(new Array(99).fill(null))),
-      new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.BRICK).concat(new Array(93).fill(null))),
+      new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.MISTERY).concat(new Array(99).fill(null))),
+      new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.MISTERY).concat(new Array(93).fill(null))),
     ];
     // character
     this.character = new Character(resources.sprites, this);
@@ -56,9 +56,9 @@ class World {
     //console.log(direction, collidingBlocks);
     this.debugGrid.setCollisionBlocks(collidingBlocks);
 
-    if(direction == Directions.TOP) {
-      for(const {block, x, y} of collidingBlocks) {
-        if(block.tile != Tiles.BRICK) {
+    if (direction == Directions.TOP) {
+      for (const { block, x, y } of collidingBlocks) {
+        if (block.tile != Tiles.MISTERY) {
           continue;
         }
         // animations
