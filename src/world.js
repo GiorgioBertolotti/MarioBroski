@@ -59,20 +59,10 @@ class World {
     //console.log(direction, collidingBlocks);
     this.debugGrid.setCollisionBlocks(collidingBlocks);
 
-<<<<<<< HEAD
     for(const data  of collidingBlocks) {
       const handler = this.blockHandler.get(direction, data.block.tile);
       if(handler) {
         handler(this, data);
-=======
-    if (direction == Directions.TOP) {
-      for (const { block, x, y } of collidingBlocks) {
-        if (block.tile != Tiles.MISTERY) {
-          continue;
-        }
-        // animations
-        delete this.grid[y][x];
->>>>>>> d5270cb9cc0a1256868e1ec56a532d9a16602073
       }
     }
   }
