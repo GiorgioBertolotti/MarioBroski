@@ -172,7 +172,7 @@ export default class Character {
       const xCheck = futureGridPos.x + (isRight ? spriteWidthInBlocks : 0);
       const collidingBlocks = collisionCheck(occupiedBlocksVertically, index => ({ x: xCheck, y: gridPos.y - index }))
       if (collidingBlocks.length > 0) {
-        this.x = ((xCheck - direction) * TILE_SIZE) - direction;
+        this.x = ((xCheck - direction) * TILE_SIZE);
         this.speed = 0;
         this.world.onCollision(direction, collidingBlocks);
       } else {
@@ -196,7 +196,7 @@ export default class Character {
       } else {
         sprite = Sprites.JUMP_L;
       }
-    } else if (prevX === this.x) {
+    } else if (this.acceleration === 0) {
       // idle
       if (this.direction) {
         if (this.direction === Directions.RIGHT)
