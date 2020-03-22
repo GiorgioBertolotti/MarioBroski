@@ -1,5 +1,5 @@
 import { Sprites, rightSprites } from "./sprites.js";
-import { TILE_SIZE, playgroundWidth, playgroundHeight } from "./index.js";
+import { TILE_SIZE, playgroundWidth, playgroundHeight, SPRITE_HEIGHT } from "./index.js";
 
 export default class Character {
   constructor(spriteSheet, world) {
@@ -143,7 +143,7 @@ export default class Character {
         const yStart = futureGridPos.y;
         const headCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: yStart }));
         if (headCollidingBlocks.length > 0) {
-          this.y = playgroundHeight - ((gridPos.y + 1) * TILE_SIZE) + 1;
+          this.y = playgroundHeight - ((gridPos.y + 1) * TILE_SIZE);
           this.verticalSpeed = 0;
           this.world.onCollision(Directions.TOP, headCollidingBlocks);
         } else {
@@ -152,8 +152,9 @@ export default class Character {
       }
     } else if (verticalDirection < 0) {
       // falling
+      const feetFutureY = Math.floor((playgroundHeight - futureY - this.spriteHeight) / TILE_SIZE);
       const yEnd = futureGridPos.y - spriteHeightInBlocks;
-      const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: yEnd }));
+      const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: feetFutureY }));
       if (feetCollidingBlocks.length > 0) {
         this.y = playgroundHeight - ((yEnd + 1) * TILE_SIZE) - this.spriteHeight;
         this.verticalSpeed = 0;
