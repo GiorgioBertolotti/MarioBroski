@@ -152,16 +152,23 @@ export default class Character {
       }
     } else if (verticalDirection < 0) {
       // falling
-      const feetFutureY = Math.floor((playgroundHeight - futureY) / TILE_SIZE) - spriteHeightInBlocks;
-      const yEnd = futureGridPos.y - spriteHeightInBlocks;
-      const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: feetFutureY }));
-      if (feetCollidingBlocks.length > 0) {
-        this.y = playgroundHeight - ((yEnd + 1) * TILE_SIZE) - this.spriteHeight;
+      const underFeetY = Math.floor((playgroundHeight - this.y - this.spriteHeight - 1) / TILE_SIZE);
+      const alreadyCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: underFeetY }));
+      if (alreadyCollidingBlocks.length > 0) {
         this.verticalSpeed = 0;
-        this.isJumping = false;
-        this.world.onCollision(Directions.BOTTOM, feetCollidingBlocks);
+        this.world.onCollision(Directions.BOTTOM, alreadyCollidingBlocks);
       } else {
-        this.y = futureY;
+        const feetFutureY = Math.floor((playgroundHeight - futureY - this.spriteHeight) / TILE_SIZE);
+        const yEnd = futureGridPos.y - spriteHeightInBlocks;
+        const feetCollidingBlocks = collisionCheck(occupiedBlocksHorizontally, index => ({ x: gridPos.x + index, y: feetFutureY }));
+        if (feetCollidingBlocks.length > 0) {
+          this.y = playgroundHeight - ((yEnd + 1) * TILE_SIZE) - this.spriteHeight;
+          this.verticalSpeed = 0;
+          this.isJumping = false;
+          this.world.onCollision(Directions.BOTTOM, feetCollidingBlocks);
+        } else {
+          this.y = futureY;
+        }
       }
     }
 
