@@ -22,7 +22,7 @@
   "grid": [
     [
       {
-        "quantity": 5,
+        "quantity": 100,
         "block": "GRASS",
         "offset": 0
       },

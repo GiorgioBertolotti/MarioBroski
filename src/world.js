@@ -6,12 +6,13 @@ import { TILE_SIZE, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playg
 import Camera from './camera.js';
 import { defaultHandlers } from './block_handlers.js';
 import DebugGrid from './debug_grid.js';
+import parseGrid from './grid_parser.js';
 
 class World {
   constructor(resources) {
     this.length = 100;
-    // this.grid = require('../assets/world.json');
-    this.grid = [
+    this.grid = parseGrid('../assets/world.json');
+    /*this.grid = [
       new Array(this.length).fill(BLOCKS.GROUND),
       new Array(this.length).fill(BLOCKS.GRASS),
       [BLOCKS.HILL_START, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL_TOP_END].concat(new Array(3).fill(null).concat([BLOCKS.HILL_TOP_START, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL_END])),
@@ -20,7 +21,7 @@ class World {
       new Array(this.length).fill(null),
       new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.MISTERY).concat(new Array(99).fill(null))),
       new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.MISTERY).concat(new Array(93).fill(null))),
-    ];
+    ];*/
     // character
     this.character = new Character(resources.sprites, this);
     // cloud generation
@@ -147,7 +148,7 @@ function initClouds(worldWidth) {
     }));
 }
 
-const BLOCKS = {};
+export const BLOCKS = {};
 Object.keys(Tiles).forEach((key) => {
   BLOCKS[key] = { tile: Tiles[key] };
 });
