@@ -11,7 +11,11 @@ import parseGrid from './grid_parser.js';
 class World {
   constructor(resources) {
     this.length = 100;
-    this.grid = parseGrid('../assets/world.json');
+    const self = this;
+    (async () => {
+      self.grid = await parseGrid('../assets/world.json');
+    })()
+
     /*this.grid = [
       new Array(this.length).fill(BLOCKS.GROUND),
       new Array(this.length).fill(BLOCKS.GRASS),
