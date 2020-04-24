@@ -9,8 +9,8 @@ import DebugGrid from './debug_grid.js';
 
 class World {
   constructor(grid, resources) {
-    this.length = 100;
     this.grid = grid;
+    this.length = grid.reduce((a, b) => Math.max(a, b.length), 0);
     // character
     this.character = new Character(resources.sprites, this);
     // cloud generation
