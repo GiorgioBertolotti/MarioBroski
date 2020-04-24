@@ -1,6 +1,6 @@
 import { createLayersStack } from './layer.js';
 import { Tiles } from './tiles.js';
-import Character, { Directions } from './character.js';
+import Character from './character.js';
 import { Colors } from './colors.js';
 import { TILE_SIZE, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playgroundWidth } from './index.js';
 import Camera from './camera.js';
@@ -59,9 +59,9 @@ class World {
     //console.log(direction, collidingBlocks);
     this.debugGrid.setCollisionBlocks(collidingBlocks);
 
-    for(const data  of collidingBlocks) {
+    for (const data of collidingBlocks) {
       const handler = this.blockHandler.get(direction, data.block.tile);
-      if(handler) {
+      if (handler) {
         handler(this, data);
       }
     }
