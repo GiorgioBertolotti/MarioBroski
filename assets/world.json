@@ -1,1 +1,36 @@
-// TODO: Write world json
+{
+  "structures": [
+    {
+      "id": "top_grass",
+      "width": 1,
+      "grid": [
+        {
+          "quantity": 1,
+          "block": "GRASS_START"
+        },
+        {
+          "quantity": "$width",
+          "block": "GRASS"
+        },
+        {
+          "quantity": 1,
+          "block": "GRASS_END"
+        }
+      ]
+    }
+  ],
+  "grid": [
+    [
+      {
+        "quantity": 5,
+        "block": "GRASS",
+        "offset": 0
+      },
+      {
+        "reference": "top_grass",
+        "offset": 0,
+        "width": 10
+      }
+    ]
+  ]
+}
