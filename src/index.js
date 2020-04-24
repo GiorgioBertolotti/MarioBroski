@@ -2,6 +2,7 @@ import Tile from './tiles.js';
 import Sprite from './sprites.js';
 import { Colors } from './colors.js';
 import World from './world.js';
+import parseGrid from './grid_parser.js';
 
 // consts
 const TILESET_FILE_NAME = './assets/tileset.png';
@@ -28,15 +29,21 @@ const context = canvas.getContext("2d");
 context.strokeStyle = Colors.WHITE;
 
 loadImages().then((loaded) => {
-  // worlds definition
-  const world = new World(loaded);
-  // start rendering
-  const renderer = createRenderer(world);
-  addListeners(world);
-  renderer();
+  loadWorld().then((grid) => {
+    // worlds definition
+    const world = new World(grid, loaded);
+    // start rendering
+    const renderer = createRenderer(world);
+    addListeners(world);
+    renderer();
+  })
 });
 
 // sprite sheet
+async function loadWorld() {
+  return await parseGrid('../assets/world.json');
+}
+
 function loadImage(imageSrc) {
   const promise = new Promise(resolve => {
     const img = new Image();

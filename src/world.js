@@ -6,26 +6,11 @@ import { TILE_SIZE, TILES_PER_COLUMN, BLACK_BAND_HEIGHT, playgroundHeight, playg
 import Camera from './camera.js';
 import { defaultHandlers } from './block_handlers.js';
 import DebugGrid from './debug_grid.js';
-import parseGrid from './grid_parser.js';
 
 class World {
-  constructor(resources) {
+  constructor(grid, resources) {
     this.length = 100;
-    const self = this;
-    (async () => {
-      self.grid = await parseGrid('../assets/world.json');
-    })()
-
-    /*this.grid = [
-      new Array(this.length).fill(BLOCKS.GROUND),
-      new Array(this.length).fill(BLOCKS.GRASS),
-      [BLOCKS.HILL_START, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL_TOP_END].concat(new Array(3).fill(null).concat([BLOCKS.HILL_TOP_START, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL, BLOCKS.HILL_END])),
-      [BLOCKS.HILL_TOP_START, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP_END].concat(new Array(5).fill(null).concat([BLOCKS.HILL_TOP_START, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP, BLOCKS.HILL_TOP_END])),
-      new Array(this.length).fill(null),
-      new Array(this.length).fill(null),
-      new Array(1).fill(null).concat(new Array(1).fill(BLOCKS.MISTERY).concat(new Array(99).fill(null))),
-      new Array(8).fill(null).concat(new Array(1).fill(BLOCKS.MISTERY).concat(new Array(93).fill(null))),
-    ];*/
+    this.grid = grid;
     // character
     this.character = new Character(resources.sprites, this);
     // cloud generation
