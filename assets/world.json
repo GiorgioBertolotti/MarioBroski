@@ -6,15 +6,15 @@
       "grid": [
         {
           "quantity": 1,
-          "block": "GRASS_START"
+          "block": "HILL_TOP_START"
         },
         {
           "quantity": "$width",
-          "block": "GRASS"
+          "block": "HILL_TOP"
         },
         {
           "quantity": 1,
-          "block": "GRASS_END"
+          "block": "HILL_TOP_END"
         }
       ]
     }
@@ -22,14 +22,75 @@
   "grid": [
     [
       {
-        "quantity": 100,
+        "quantity": 1,
+        "block": "GROUND",
+        "offset": 0
+      }
+    ],
+    [
+      {
+        "quantity": 1,
         "block": "GRASS",
+        "offset": 0
+      }
+    ],
+    [
+      {
+        "quantity": 1,
+        "block": "HILL_START",
+        "offset": 0
+      },
+      {
+        "quantity": 2,
+        "block": "HILL",
+        "offset": 0
+      },
+      {
+        "quantity": 1,
+        "block": "HILL_TOP_END",
+        "offset": 0
+      },
+      {
+        "quantity": 3,
+        "block": "HILL_TOP_START",
+        "offset": 0
+      },
+      {
+        "quantity": 3,
+        "block": "HILL",
+        "offset": 0
+      },
+      {
+        "quantity": 1,
+        "block": "HILL_END",
+        "offset": 0
+      }
+    ],
+    [
+      {
+        "reference": "top_grass",
         "offset": 0
       },
       {
         "reference": "top_grass",
-        "offset": 0,
-        "width": 10
+        "offset": 5,
+        "width": 2
+      }
+    ],
+    [],
+    [],
+    [
+      {
+        "quantity": 1,
+        "block": "MISTERY",
+        "offset": 1
+      }
+    ],
+    [
+      {
+        "quantity": 1,
+        "block": "MISTERY",
+        "offset": 8
       }
     ]
   ]
