@@ -22,14 +22,14 @@
   "grid": [
     [
       {
-        "quantity": 1,
+        "quantity": 50,
         "block": "GROUND",
         "offset": 0
       }
     ],
     [
       {
-        "quantity": 1,
+        "quantity": 50,
         "block": "GRASS",
         "offset": 0
       }
@@ -51,9 +51,9 @@
         "offset": 0
       },
       {
-        "quantity": 3,
+        "quantity": 1,
         "block": "HILL_TOP_START",
-        "offset": 0
+        "offset": 3
       },
       {
         "quantity": 3,
