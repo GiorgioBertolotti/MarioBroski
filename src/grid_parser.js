@@ -2,7 +2,7 @@ import { BLOCKS } from "./world.js";
 
 export default async function parseGrid(jsonPath) {
     const result = await fetch(jsonPath);
-    const json = result.json();
+    const json = await result.json();
     const structsMap = {};
     for (const struct of json.structures) {
         structsMap[struct.id] = struct;

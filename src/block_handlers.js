@@ -4,6 +4,6 @@ import BlockHandlerMap from './block_handler_map.js';
 
 export const defaultHandlers = new BlockHandlerMap();
 
-defaultHandlers.add(Directions.TOP, Tiles.MISTERY, (world, { x, y }) => {
+defaultHandlers.add(Directions.TOP, Tiles.MYSTERY, (world, { x, y }) => {
     delete world.grid[y][x];
 })

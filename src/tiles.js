@@ -12,7 +12,7 @@ export default class Tile {
 }
 
 export const Tiles = {
-  MISTERY: 17,
+  MYSTERY: 17,
   BRICK: 89,
   GRASS_START: 3,
   GRASS: 29,
