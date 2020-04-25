@@ -32,6 +32,7 @@ loadImages().then((loaded) => {
   loadWorld().then((grid) => {
     // worlds definition
     const world = new World(grid, loaded);
+
     // start rendering
     const renderer = createRenderer(world);
     addListeners(world);

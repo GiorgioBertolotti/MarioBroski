@@ -11,15 +11,20 @@ class World {
   constructor(grid, resources) {
     this.grid = grid;
     this.length = grid.reduce((a, b) => Math.max(a, b.length), 0);
+
     // character
     this.character = new Character(resources.sprites, this);
+
     // cloud generation
     this.clouds = initClouds(this.length * TILE_SIZE);
     this.camera = new Camera(0, this, playgroundWidth);
+
     // debug grid
     this.debugGrid = new DebugGrid(this.camera, Colors.WHITE);
+
     //blocks event handler
     this.blockHandler = defaultHandlers;
+
     // layers definition
     this.layers = createLayersStack([
       {
