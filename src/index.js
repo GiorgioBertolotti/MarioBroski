@@ -5,6 +5,7 @@ import World from './world.js';
 import parseGrid from './grid_parser.js';
 
 // consts
+export const DEBUG = false;
 const TILESET_FILE_NAME = './assets/tileset.png';
 const MARIO_SPRITESHEET_FILE_NAME = './assets/sprites_mario.png';
 const LUIGI_SPRITESHEET_FILE_NAME = './assets/sprites_luigi.png';
@@ -15,7 +16,6 @@ let SCREEN_HEIGHT = window.innerHeight;
 export const BLACK_BAND_HEIGHT = 0;
 export const TILES_PER_COLUMN = 26;
 export const TILE_SIZE = 64;
-const SPRITE_PER_COLUMN = 3;
 export const SPRITE_HEIGHT = 128;
 export const SPRITE_WIDTH = 64;
 export let playgroundWidth = SCREEN_WIDTH;
